@@ -187,53 +187,77 @@ Distance: ${bestDistance.toFixed(4)}`
     setMessage("🗑 All Registered Faces Removed");
   };
 
-  return (
-    <div
+  
+return (
+  <div
+    style={{
+      textAlign: "center",
+      padding: "20px",
+      fontFamily: "Arial",
+      width: "100%",
+      boxSizing: "border-box",
+    }}
+  >
+    <h1
       style={{
-        textAlign: "center",
-        padding: 20,
-        fontFamily: "Arial",
+        fontSize: "clamp(24px, 4vw, 40px)",
+        marginBottom: 20,
       }}
     >
-      <h1>Live Face Recognition</h1>
+      Live Face Recognition
+    </h1>
 
-      {loading && <h3>Loading Models...</h3>}
+    {loading && <h3>Loading Models...</h3>}
 
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        width={640}
-        height={480}
-        style={{
-          border: "2px solid black",
-          borderRadius: 10,
-        }}
-      />
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      style={{
+        width: "90%",
+        maxWidth: "900px",
+        height: "auto",
+        border: "2px solid black",
+        borderRadius: 10,
+      }}
+    />
 
-      <br />
-      <br />
+    <br />
+    <br />
 
-      <input
-        type="text"
-        placeholder="Enter Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "250px",
-          marginBottom: "15px",
-        }}
-      />
+    <input
+      type="text"
+      placeholder="Enter Name"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      style={{
+        padding: "12px",
+        width: "90%",
+        maxWidth: "400px",
+        fontSize: "18px",
+        marginBottom: "15px",
+        borderRadius: "8px",
+        boxSizing: "border-box",
+      }}
+    />
 
-      <br />
+    <br />
 
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: "10px",
+      }}
+    >
       <button
         onClick={registerFace}
         style={{
-          padding: "10px 20px",
-          margin: 5,
+          padding: "14px 24px",
+          minWidth: "180px",
+          fontSize: "16px",
           cursor: "pointer",
         }}
       >
@@ -244,8 +268,9 @@ Distance: ${bestDistance.toFixed(4)}`
         <button
           onClick={startVerification}
           style={{
-            padding: "10px 20px",
-            margin: 5,
+            padding: "14px 24px",
+            minWidth: "180px",
+            fontSize: "16px",
             cursor: "pointer",
           }}
         >
@@ -255,8 +280,9 @@ Distance: ${bestDistance.toFixed(4)}`
         <button
           onClick={stopVerification}
           style={{
-            padding: "10px 20px",
-            margin: 5,
+            padding: "14px 24px",
+            minWidth: "180px",
+            fontSize: "16px",
             cursor: "pointer",
           }}
         >
@@ -267,26 +293,31 @@ Distance: ${bestDistance.toFixed(4)}`
       <button
         onClick={clearRegisteredFaces}
         style={{
-          padding: "10px 20px",
-          margin: 5,
+          padding: "14px 24px",
+          minWidth: "180px",
+          fontSize: "16px",
           cursor: "pointer",
         }}
       >
         Clear Faces
       </button>
-
-      <div
-        style={{
-          marginTop: 20,
-          whiteSpace: "pre-line",
-          fontSize: 21,
-          fontWeight: "bold",
-        }}
-      >
-        {message}
-      </div>
     </div>
-  );
+
+    <div
+      style={{
+        marginTop: 20,
+        whiteSpace: "pre-line",
+        fontSize: "clamp(18px, 2vw, 24px)",
+        fontWeight: "bold",
+        padding: "0 10px",
+      }}
+    >
+      {message}
+    </div>
+  </div>
+);
+ 
+
 }
 
 export default App;
