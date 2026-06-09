@@ -9,7 +9,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [name, setName] = useState("");
-
+const lastMatchedRef = useRef(null);
 useEffect(() => {
   initialize();
 
@@ -231,25 +231,48 @@ const registerFace = async () => {
         }
       }
 
+//       if (bestDistance < 0.5) {
+//         setMessage(
+//           `🟢 MATCH
+
+// Name: ${bestMatch}
+
+// Distance: ${bestDistance.toFixed(4)}`
+//         );
+//         if (window.ReactNativeWebView) {
+//   window.ReactNativeWebView.postMessage(
+//     JSON.stringify({
+//       type: "FACE_MATCHED",
+//       employeeid: bestMatch,
+//       distance: bestDistance,
+//       timestamp: new Date().toISOString(),
+//     })
+//   );
+// }
+//       } 
+      
       if (bestDistance < 0.5) {
-        setMessage(
-          `🟢 MATCH
 
+  if (lastMatchedRef.current !== bestMatch) {
+
+    lastMatchedRef.current = bestMatch;
+
+    window.ReactNativeWebView?.postMessage(
+      JSON.stringify({
+        type: "FACE_MATCHED",
+        employeeid: bestMatch,
+        distance: bestDistance,
+        timestamp: new Date().toISOString(),
+      })
+    );
+  }
+
+  setMessage(`🟢 MATCH
 Name: ${bestMatch}
-
-Distance: ${bestDistance.toFixed(4)}`
-        );
-        if (window.ReactNativeWebView) {
-  window.ReactNativeWebView.postMessage(
-    JSON.stringify({
-      type: "FACE_MATCHED",
-      employeeid: bestMatch,
-      distance: bestDistance,
-      timestamp: new Date().toISOString(),
-    })
-  );
+Distance: ${bestDistance.toFixed(4)}`);
 }
-      } else {
+      
+      else {
         setMessage(
           `🔴 UNKNOWN PERSON
 
