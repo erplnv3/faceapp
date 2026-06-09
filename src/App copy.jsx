@@ -239,16 +239,6 @@ Name: ${bestMatch}
 
 Distance: ${bestDistance.toFixed(4)}`
         );
-        if (window.ReactNativeWebView) {
-  window.ReactNativeWebView.postMessage(
-    JSON.stringify({
-      type: "FACE_MATCHED",
-      employeeid: bestMatch,
-      distance: bestDistance,
-      timestamp: new Date().toISOString(),
-    })
-  );
-}
       } else {
         setMessage(
           `🔴 UNKNOWN PERSON
