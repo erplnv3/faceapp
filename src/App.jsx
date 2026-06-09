@@ -10,15 +10,45 @@ function App() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [name, setName] = useState("");
 
-  useEffect(() => {
-    initialize();
+useEffect(() => {
+  initialize();
 
-    return () => {
-      if (verificationInterval.current) {
-        clearInterval(verificationInterval.current);
-      }
-    };
-  }, []);
+  window.receiveFaceData = (faces) => {
+    try {
+      console.log("Received from RN:", faces);
+
+      const converted = faces.map((item) => ({
+        name: item.employeeid,
+        descriptor: String(item.faceembedding)
+          .split(",")
+          .map(Number),
+      }));
+
+      localStorage.setItem(
+        "registeredFaces",
+        JSON.stringify(converted)
+      );
+
+      setMessage(
+        `✅ Loaded ${converted.length} faces from database`
+      );
+
+      console.log("Converted:", converted);
+    } catch (error) {
+      console.log("receiveFaceData error:", error);
+    }
+  };
+
+  if (window.allFacesFromRN) {
+    window.receiveFaceData(window.allFacesFromRN);
+  }
+
+  return () => {
+    if (verificationInterval.current) {
+      clearInterval(verificationInterval.current);
+    }
+  };
+}, []);
 
   const initialize = async () => {
     try {
@@ -151,69 +181,69 @@ const registerFace = async () => {
   // };
 
   const startVerification = async () => {
-    const registeredFaces =
-      JSON.parse(localStorage.getItem("registeredFaces")) || [];
+  if (verificationInterval.current) {
+    clearInterval(verificationInterval.current);
+  }
 
-    if (registeredFaces.length === 0) {
-      setMessage("❌ Register Face First");
-      return;
-    }
+  setIsVerifying(true);
+  setMessage("🔍 Verification Started");
 
-    if (verificationInterval.current) {
-      clearInterval(verificationInterval.current);
-    }
+  verificationInterval.current = setInterval(async () => {
+    try {
+      const registeredFaces =
+        JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
-    setIsVerifying(true);
-    setMessage("🔍 Verification Started");
+      if (registeredFaces.length === 0) {
+        setMessage("❌ No Faces Loaded");
+        return;
+      }
 
-    verificationInterval.current = setInterval(async () => {
-      try {
-        const descriptor = await getDescriptorFromVideo();
+      const descriptor = await getDescriptorFromVideo();
 
-        if (!descriptor) {
-          setMessage("⚠️ No Face Detected");
-          return;
+      if (!descriptor) {
+        setMessage("⚠️ No Face Detected");
+        return;
+      }
+
+      let bestMatch = null;
+      let bestDistance = 999;
+
+      for (const person of registeredFaces) {
+        const savedDescriptor = new Float32Array(
+          person.descriptor
+        );
+
+        const distance = faceapi.euclideanDistance(
+          descriptor,
+          savedDescriptor
+        );
+
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestMatch = person.name;
         }
+      }
 
-        let bestMatch = null;
-        let bestDistance = 999;
-
-        for (const person of registeredFaces) {
-          const savedDescriptor = new Float32Array(
-            person.descriptor
-          );
-
-          const distance = faceapi.euclideanDistance(
-            descriptor,
-            savedDescriptor
-          );
-
-          if (distance < bestDistance) {
-            bestDistance = distance;
-            bestMatch = person.name;
-          }
-        }
-
-        if (bestDistance < 0.5) {
-          setMessage(
-            `🟢 MATCH
+      if (bestDistance < 0.5) {
+        setMessage(
+          `🟢 MATCH
 
 Name: ${bestMatch}
 
 Distance: ${bestDistance.toFixed(4)}`
-          );
-        } else {
-          setMessage(
-            `🔴 UNKNOWN PERSON
+        );
+      } else {
+        setMessage(
+          `🔴 UNKNOWN PERSON
 
 Distance: ${bestDistance.toFixed(4)}`
-          );
-        }
-      } catch (error) {
-        console.log(error);
+        );
       }
-    }, 1000);
-  };
+    } catch (error) {
+      console.log(error);
+    }
+  }, 1000);
+};
 
   const stopVerification = () => {
     if (verificationInterval.current) {
