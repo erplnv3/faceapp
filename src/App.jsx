@@ -62,43 +62,93 @@ function App() {
 
     return detection.descriptor;
   };
-
-  const registerFace = async () => {
-    try {
-      if (!name.trim()) {
-        setMessage("❌ Enter Name First");
-        return;
-      }
-
-      setMessage("Registering Face...");
-
-      const descriptor = await getDescriptorFromVideo();
-
-      if (!descriptor) {
-        setMessage("❌ No Face Detected");
-        return;
-      }
-
-      const registeredFaces =
-        JSON.parse(localStorage.getItem("registeredFaces")) || [];
-
-      registeredFaces.push({
-        name: name.trim(),
-        descriptor: Array.from(descriptor),
-      });
-
-      localStorage.setItem(
-        "registeredFaces",
-        JSON.stringify(registeredFaces)
-      );
-
-      setMessage(`✅ ${name} Registered Successfully`);
-      setName("");
-    } catch (error) {
-      console.log(error);
-      setMessage("❌ Registration Failed");
+const registerFace = async () => {
+  try {
+    if (!name.trim()) {
+      setMessage("❌ Enter Name First");
+      return;
     }
-  };
+
+    setMessage("Registering Face...");
+
+    const descriptor = await getDescriptorFromVideo();
+
+    if (!descriptor) {
+      setMessage("❌ No Face Detected");
+      return;
+    }
+
+    const faceData = {
+      name: name.trim(),
+      descriptor: Array.from(descriptor),
+      registeredAt: new Date().toISOString(),
+    };
+
+    const registeredFaces =
+      JSON.parse(localStorage.getItem("registeredFaces")) || [];
+
+    registeredFaces.push(faceData);
+
+    localStorage.setItem(
+      "registeredFaces",
+      JSON.stringify(registeredFaces)
+    );
+
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "FACE_REGISTERED",
+          data: faceData,
+        })
+      );
+    }
+
+    setMessage(
+      `✅ ${name} Registered & Sent To Mobile`
+    );
+
+    setName("");
+  } catch (error) {
+    console.log(error);
+    setMessage("❌ Registration Failed");
+  }
+};
+  // const registerFace = async () => {
+  //   try {
+  //     if (!name.trim()) {
+  //       setMessage("❌ Enter Name First");
+  //       return;
+  //     }
+
+  //     setMessage("Registering Face...");
+
+  //     const descriptor = await getDescriptorFromVideo();
+
+  //     if (!descriptor) {
+  //       setMessage("❌ No Face Detected");
+  //       return;
+  //     }
+
+  //     const registeredFaces =
+  //       JSON.parse(localStorage.getItem("registeredFaces")) || [];
+
+  //     registeredFaces.push({
+  //       name: name.trim(),
+  //       descriptor: Array.from(descriptor),
+  //     });
+
+  //     localStorage.setItem(
+  //       "registeredFaces",
+  //       JSON.stringify(registeredFaces)
+  //     );
+
+  //     setMessage(`✅ ${name} Registered Successfully`);
+  //     setName("");
+  //   } catch (error) {
+  //     console.log(error);
+  //     setMessage("❌ Registration Failed");
+  //   }
+  // };
 
   const startVerification = async () => {
     const registeredFaces =
