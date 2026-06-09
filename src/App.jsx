@@ -14,35 +14,42 @@ useEffect(() => {
   initialize();
 
   window.receiveFaceData = (faces) => {
-    try {
-      console.log("Received from RN:", faces);
+  try {
+    console.log("=================================");
+    console.log("DATA RECEIVED FROM REACT NATIVE");
+    console.log(faces);
+    console.log("TOTAL:", faces.length);
+    console.log("=================================");
 
-      const converted = faces.map((item) => ({
-        name: item.employeeid,
-        descriptor: String(item.faceembedding)
-          .split(",")
-          .map(Number),
-      }));
+    const converted = faces.map((item) => ({
+      name: item.employeeid,
+      descriptor: String(item.faceembedding)
+        .split(",")
+        .map(Number),
+    }));
 
-      localStorage.setItem(
-        "registeredFaces",
-        JSON.stringify(converted)
-      );
+    localStorage.setItem(
+      "registeredFaces",
+      JSON.stringify(converted)
+    );
 
-      setMessage(
-        `✅ Loaded ${converted.length} faces from database`
-      );
+    alert(`Received ${converted.length} faces from mobile app`);
 
-      console.log("Converted:", converted);
-    } catch (error) {
-      console.log("receiveFaceData error:", error);
-    }
-  };
+    setMessage(
+      `✅ RECEIVED ${converted.length} FACES FROM MOBILE`
+    );
+  } catch (error) {
+    console.log("receiveFaceData error:", error);
+  }
+};
 
   if (window.allFacesFromRN) {
     window.receiveFaceData(window.allFacesFromRN);
   }
-
+console.log(
+  "window.allFacesFromRN:",
+  window.allFacesFromRN
+);
   return () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
