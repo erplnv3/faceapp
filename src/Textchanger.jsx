@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
-
-function Fullpage() {
+ function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
 
@@ -501,4 +500,4 @@ return (
 
 }
 
-export default Fullpage;
+export default Textchanger;

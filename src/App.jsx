@@ -1,73 +1,64 @@
 import React, { useState } from "react";
-import Fullpage from "./Fullpage";
-import Reigsterpage from "./Reigsterpage";
+import Textchanger from "./Textchanger";
+import Register from "./Register";
 
 function App() {
-  const [page, setPage] = useState("login");
+  const [activeTab, setActiveTab] = useState("login");
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f5f7fb",
-      }}
-    >
+    <div style={{ position: "relative", minHeight: "100vh" }}>
+      {/* Overlay Toggle */}
       <div
         style={{
+          position: "fixed",
+          top: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 9999,
           display: "flex",
-          justifyContent: "center",
-          paddingTop: "20px",
-          paddingBottom: "20px",
+          background: "rgba(255,255,255,0.95)",
+          padding: "6px",
+          borderRadius: "16px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
         }}
       >
-        <div
+        <button
+          onClick={() => setActiveTab("login")}
           style={{
-            display: "flex",
-            background: "#fff",
-            padding: "6px",
-            borderRadius: "16px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            border: "none",
+            padding: "12px 24px",
+            borderRadius: "12px",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: 600,
+            background:
+              activeTab === "login" ? "#2563eb" : "transparent",
+            color: activeTab === "login" ? "#fff" : "#333",
           }}
         >
-          <button
-            onClick={() => setPage("login")}
-            style={{
-              padding: "12px 32px",
-              border: "none",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-              background:
-                page === "login" ? "#2563eb" : "transparent",
-              color: page === "login" ? "#fff" : "#555",
-              transition: "0.3s",
-            }}
-          >
-            Login
-          </button>
+          Login
+        </button>
 
-          <button
-            onClick={() => setPage("register")}
-            style={{
-              padding: "12px 32px",
-              border: "none",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-              background:
-                page === "register" ? "#2563eb" : "transparent",
-              color: page === "register" ? "#fff" : "#555",
-              transition: "0.3s",
-            }}
-          >
-            Register Face
-          </button>
-        </div>
+        <button
+          onClick={() => setActiveTab("register")}
+          style={{
+            border: "none",
+            padding: "12px 24px",
+            borderRadius: "12px",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: 600,
+            background:
+              activeTab === "register" ? "#2563eb" : "transparent",
+            color: activeTab === "register" ? "#fff" : "#333",
+          }}
+        >
+          Register
+        </button>
       </div>
 
-      {page === "login" ? <Fullpage /> : <Reigsterpage />}
+      {/* Page Content */}
+      {activeTab === "login" ? <Textchanger /> : <Register />}
     </div>
   );
 }
