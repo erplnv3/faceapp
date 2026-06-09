@@ -9,8 +9,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [name, setName] = useState("");
-  const [multipleFaces, setMultipleFaces] = useState(false);
-  const lastMatchedRef = useRef(null);
+const lastMatchedRef = useRef(null);
 useEffect(() => {
   initialize();
 
@@ -85,15 +84,6 @@ console.log(
     }
   };
 
-  const getFaceDetections = async () => {
-    if (!videoRef.current) return [];
-
-    return await faceapi.detectAllFaces(
-      videoRef.current,
-      new faceapi.TinyFaceDetectorOptions()
-    );
-  };
-
   const getDescriptorFromVideo = async () => {
     if (!videoRef.current) return null;
 
@@ -109,8 +99,7 @@ console.log(
 
     return detection.descriptor;
   };
-
-  const registerFace = async () => {
+const registerFace = async () => {
   try {
     if (!name.trim()) {
       setMessage("❌ Enter Name First");
@@ -215,22 +204,6 @@ console.log(
         setMessage("❌ No Faces Loaded");
         return;
       }
-
-      const faces = await getFaceDetections();
-
-      if (faces.length === 0) {
-        setMultipleFaces(false);
-        setMessage("⚠️ No Face Detected");
-        return;
-      }
-
-      if (faces.length > 1) {
-        setMultipleFaces(true);
-        setMessage("❌ Multiple Faces Detected\nOnly one face at a time");
-        return;
-      }
-
-      setMultipleFaces(false);
 
       const descriptor = await getDescriptorFromVideo();
 
@@ -356,53 +329,19 @@ return (
 
     {loading && <h3>Loading Models...</h3>}
 
-    <div
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
       style={{
-        position: "relative",
-        display: "inline-block",
         width: "90%",
         maxWidth: "900px",
+        height: "auto",
+        border: "2px solid black",
+        borderRadius: 10,
       }}
-    >
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        style={{
-          width: "100%",
-          height: "auto",
-          border: "2px solid black",
-          borderRadius: 10,
-          display: "block",
-        }}
-      />
-
-      {multipleFaces && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(255, 0, 0, 0.55)",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "clamp(24px, 2vw, 32px)",
-            fontWeight: "bold",
-            borderRadius: 10,
-            textAlign: "center",
-            padding: "20px",
-            boxSizing: "border-box",
-          }}
-        >
-          One Face At A Time
-        </div>
-      )}
-    </div>
+    />
 
     <br />
     <br />
