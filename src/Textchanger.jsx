@@ -14,6 +14,7 @@ import * as faceapi from "face-api.js";
   const [attendanceResult, setAttendanceResult] = useState(null);
   const [multipleFaces, setMultipleFaces] = useState(false);
   const lastMatchedRef = useRef(null);
+  const [attendanceDetails, setAttendanceDetails] = useState(null);
 const [currentTime, setCurrentTime] = useState(new Date());
 const systemStatus = [
   {
@@ -76,6 +77,7 @@ useEffect(() => {
     // payload expected shape: { employee: {...}, attendanceStatus: 'PUNCH_IN'|'PUNCH_OUT'|'COMPLETED', attendanceRecord: {...} }
     const emp = payload.employee || payload;
     setEmployee(emp);
+    setAttendanceDetails(payload.attendancedetails);
     setAttendanceStatus(payload.attendanceStatus || null);
     setAttendanceRecord(payload.attendanceRecord || null);
     setAttendanceResult(null);
@@ -338,8 +340,7 @@ const getDescriptorFromVideo = async () => {
       type: action,
       employeeId: employee.id || employee.employeeId || employee.empId || employeeCode || null,
     };
-Alert(employee);
-    window.ReactNativeWebView.postMessage(JSON.stringify(payload));
+     window.ReactNativeWebView.postMessage(JSON.stringify(payload));
 
     setMessage(`Sending ${action.replace("_", " ")} request...`);
   };
@@ -1079,13 +1080,13 @@ return (
                     fontWeight: 700,
                   }}
                 >
-                  {employee?.name?.[0] || "E"}
+                  {attendanceDetails?.firstname?.[0] || "E"}
                 </div>
               )}
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                {employee?.name || "Employee"}
+                {attendanceDetails?.firstname || "Employee"}
               </div>
               <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
                 {employeeCode || "Code unavailable"}
