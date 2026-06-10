@@ -505,6 +505,36 @@ return (
               : "SINGLE"}
           </div>
         </div>
+
+        <div
+      style={{
+        marginTop: 20,
+        background: "#fff",
+        borderRadius: 20,
+        padding: 20,
+        border: "1px solid #e5e7eb",
+      }}
+    >
+      <div
+        style={{
+          color: "#64748b",
+          marginBottom: 10,
+        }}
+      >
+        STATUS
+      </div>
+
+      <div
+        style={{
+          color: "#111827",
+          fontSize: 18,
+          fontWeight: 600,
+          whiteSpace: "pre-line",
+        }}
+      >
+        {message}
+      </div>
+    </div>
       </div>
 
       {/* CENTER CAMERA */}
@@ -720,35 +750,7 @@ return (
     </div>
 
     {/* STATUS */}
-    <div
-      style={{
-        marginTop: 20,
-        background: "#fff",
-        borderRadius: 20,
-        padding: 20,
-        border: "1px solid #e5e7eb",
-      }}
-    >
-      <div
-        style={{
-          color: "#64748b",
-          marginBottom: 10,
-        }}
-      >
-        STATUS
-      </div>
-
-      <div
-        style={{
-          color: "#111827",
-          fontSize: 18,
-          fontWeight: 600,
-          whiteSpace: "pre-line",
-        }}
-      >
-        {message}
-      </div>
-    </div>
+    
   </div>
 );
  
