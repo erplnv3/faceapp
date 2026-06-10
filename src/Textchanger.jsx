@@ -805,6 +805,8 @@ return (
       position: "relative",
       background: "#000",
       fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+          position: 'relative',
+    left: '-136px',
     }}
   >
     {/* CAMERA */}
