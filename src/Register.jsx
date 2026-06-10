@@ -36,7 +36,7 @@ useEffect(() => {
     // alert(`Received ${converted.length} faces from mobile app`);
 
     setMessage(
-      `✅ RECEIVED ${converted.length} FACES FROM MOBILE`
+      ` RECEIVED ${converted.length} FACES FROM MOBILE`
     );
   } catch (error) {
     console.log("receiveFaceData error:", error);
@@ -77,10 +77,10 @@ console.log(
       }
 
       setLoading(false);
-      setMessage("✅ Models Loaded");
+      setMessage("Models Loaded");
     } catch (error) {
       console.error(error);
-      setMessage("❌ Failed to load models or camera");
+      setMessage(" Failed to load models or camera");
     }
   };
 const [activeTab, setActiveTab] = useState("register");
@@ -120,7 +120,7 @@ useEffect(() => {
   const registerFace = async () => {
   try {
     if (!name.trim()) {
-      setMessage("❌ Enter Name First");
+      setMessage(" Enter Name First");
       return;
     }
 
@@ -129,7 +129,7 @@ useEffect(() => {
     const descriptor = await getDescriptorFromVideo();
 
     if (!descriptor) {
-      setMessage("❌ No Face Detected");
+      setMessage(" No Face Detected");
       return;
     }
 
@@ -159,19 +159,19 @@ useEffect(() => {
     }
 
     setMessage(
-      `✅ ${name} Registered & Sent To Mobile`
+      ` ${name} Registered & Sent To Mobile`
     );
 
     setName("");
   } catch (error) {
     console.log(error);
-    setMessage("❌ Registration Failed");
+    setMessage(" Registration Failed");
   }
 };
   // const registerFace = async () => {
   //   try {
   //     if (!name.trim()) {
-  //       setMessage("❌ Enter Name First");
+  //       setMessage(" Enter Name First");
   //       return;
   //     }
 
@@ -180,7 +180,7 @@ useEffect(() => {
   //     const descriptor = await getDescriptorFromVideo();
 
   //     if (!descriptor) {
-  //       setMessage("❌ No Face Detected");
+  //       setMessage(" No Face Detected");
   //       return;
   //     }
 
@@ -197,11 +197,11 @@ useEffect(() => {
   //       JSON.stringify(registeredFaces)
   //     );
 
-  //     setMessage(`✅ ${name} Registered Successfully`);
+  //     setMessage(` ${name} Registered Successfully`);
   //     setName("");
   //   } catch (error) {
   //     console.log(error);
-  //     setMessage("❌ Registration Failed");
+  //     setMessage(" Registration Failed");
   //   }
   // };
 
@@ -219,7 +219,7 @@ useEffect(() => {
         JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
       if (registeredFaces.length === 0) {
-        setMessage("❌ No Faces Loaded");
+        setMessage(" No Faces Loaded");
         return;
       }
 
@@ -233,7 +233,7 @@ useEffect(() => {
 
       if (faces.length > 1) {
         setMultipleFaces(true);
-        setMessage("❌ Multiple Faces Detected\nOnly one face at a time");
+        setMessage(" Multiple Faces Detected\nOnly one face at a time");
         return;
       }
 
