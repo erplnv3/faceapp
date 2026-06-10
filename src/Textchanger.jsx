@@ -411,15 +411,38 @@ const getDescriptorFromVideo = async () => {
       }
 
       const faces = await getFaceDetections();
+const videoWidth = videoRef.current.videoWidth;
+const videoHeight = videoRef.current.videoHeight;
 
-      if (faces.length === 0) {
-        setMultipleFaces(false);
+const guideCenterX = videoWidth / 2;
+const guideCenterY = videoHeight / 2;
+
+const rx = 135; // 270 / 2
+const ry = 165; // 330 / 2
+
+const facesInsideOval = faces.filter((face) => {
+  const box = face.box;
+
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
+
+  const dx = centerX - guideCenterX;
+  const dy = centerY - guideCenterY;
+
+  return (
+    (dx * dx) / (rx * rx) +
+      (dy * dy) / (ry * ry) <=
+    1
+  );
+});
+if (facesInsideOval.length === 0){
+       setMultipleFaces(false);
         setMessage("No Face Detected");
         return;
       }
 
-      if (faces.length > 1) {
-        setMultipleFaces(true);
+if (facesInsideOval.length > 1){
+          setMultipleFaces(true);
         setMessage("Multiple Faces Detected\nOnly one face at a time");
         return;
       }
