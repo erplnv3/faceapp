@@ -33,7 +33,7 @@ useEffect(() => {
       JSON.stringify(converted)
     );
 
-    alert(`Received ${converted.length} faces from mobile app`);
+    // alert(`Received ${converted.length} faces from mobile app`);
 
     setMessage(
       `✅ RECEIVED ${converted.length} FACES FROM MOBILE`
