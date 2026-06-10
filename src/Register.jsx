@@ -517,13 +517,14 @@ return (
       >
         <video
           ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{
-            width: "100%",
-            display: "block",
-          }}
+            autoPlay
+  muted
+  playsInline
+  style={{
+    width: "100%",
+    display: "block",
+    transform: "scaleX(-1)",
+  }}
         />
 
         {multipleFaces && (
