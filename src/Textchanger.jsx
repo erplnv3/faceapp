@@ -10,6 +10,47 @@ import * as faceapi from "face-api.js";
   const [name, setName] = useState("");
   const [multipleFaces, setMultipleFaces] = useState(false);
   const lastMatchedRef = useRef(null);
+const [currentTime, setCurrentTime] = useState(new Date());
+const systemStatus = [
+  {
+    label: loading ? "Loading Face Models" : "Face Models Ready",
+    online: !loading,
+  },
+  {
+    label: isVerifying
+      ? "Face  Online"
+      : "Face  Standby",
+    online: isVerifying,
+  },
+  {
+    label:
+      JSON.parse(localStorage.getItem("registeredFaces") || "[]").length > 0
+        ? "Face Database Loaded"
+        : "No Faces Loaded",
+    online:
+      JSON.parse(localStorage.getItem("registeredFaces") || "[]").length > 0,
+  },
+  {
+    label: navigator.onLine
+      ? "Network Connected"
+      : "Network Disconnected",
+    online: navigator.onLine,
+  },
+];
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+const hour = currentTime.getHours();
+
+let greeting = "Good Morning";
+if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+else if (hour >= 17 && hour < 21) greeting = "Good Evening";
+else if (hour >= 21 || hour < 5) greeting = "Good Night";
 useEffect(() => {
   initialize();
 
@@ -36,7 +77,7 @@ useEffect(() => {
     // alert(`Received ${converted.length} faces from mobile app`);
 
     setMessage(
-      `✅ RECEIVED ${converted.length} FACES FROM MOBILE`
+      ` RECEIVED ${converted.length} FACES FROM MOBILE`
     );
   } catch (error) {
     console.log("receiveFaceData error:", error);
@@ -77,14 +118,14 @@ console.log(
       }
 
       setLoading(false);
-      setMessage("✅ Models Loaded");
+      setMessage(" Models Loaded");
 
 setTimeout(() => {
   startVerification();
 }, 1000);
     } catch (error) {
       console.error(error);
-      setMessage("❌ Failed to load models or camera");
+      setMessage("Failed to load models or camera");
     }
   };
 
@@ -153,7 +194,7 @@ const getDescriptorFromVideo = async () => {
   const registerFace = async () => {
   try {
     if (!name.trim()) {
-      setMessage("❌ Enter Name First");
+      setMessage(" Enter Name First");
       return;
     }
 
@@ -162,7 +203,7 @@ const getDescriptorFromVideo = async () => {
     const descriptor = await getDescriptorFromVideo();
 
     if (!descriptor) {
-      setMessage("❌ No Face Detected");
+      setMessage(" No Face Detected");
       return;
     }
 
@@ -192,19 +233,19 @@ const getDescriptorFromVideo = async () => {
     }
 
     setMessage(
-      `✅ ${name} Registered & Sent To Mobile`
+      ` ${name} Registered & Sent To Mobile`
     );
 
     setName("");
   } catch (error) {
     console.log(error);
-    setMessage("❌ Registration Failed");
+    setMessage(" Registration Failed");
   }
 };
   // const registerFace = async () => {
   //   try {
   //     if (!name.trim()) {
-  //       setMessage("❌ Enter Name First");
+  //       setMessage(" Enter Name First");
   //       return;
   //     }
 
@@ -213,7 +254,7 @@ const getDescriptorFromVideo = async () => {
   //     const descriptor = await getDescriptorFromVideo();
 
   //     if (!descriptor) {
-  //       setMessage("❌ No Face Detected");
+  //       setMessage(" No Face Detected");
   //       return;
   //     }
 
@@ -230,11 +271,11 @@ const getDescriptorFromVideo = async () => {
   //       JSON.stringify(registeredFaces)
   //     );
 
-  //     setMessage(`✅ ${name} Registered Successfully`);
+  //     setMessage(` ${name} Registered Successfully`);
   //     setName("");
   //   } catch (error) {
   //     console.log(error);
-  //     setMessage("❌ Registration Failed");
+  //     setMessage(" Registration Failed");
   //   }
   // };
 
@@ -252,7 +293,7 @@ const getDescriptorFromVideo = async () => {
         JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
       if (registeredFaces.length === 0) {
-        setMessage("❌ No Faces Loaded");
+        setMessage(" No Faces Loaded");
         return;
       }
 
@@ -266,7 +307,7 @@ const getDescriptorFromVideo = async () => {
 
       if (faces.length > 1) {
         setMultipleFaces(true);
-        setMessage("❌ Multiple Faces Detected\nOnly one face at a time");
+        setMessage(" Multiple Faces Detected\nOnly one face at a time");
         return;
       }
 
@@ -772,10 +813,10 @@ Distance: ${bestDistance.toFixed(4)}`
 //           marginBottom: 20,
 //         }}
 //       >
-//         {message.includes("MATCH") || message.includes("✅")
-//           ? "✅"
-//           : message.includes("UNKNOWN") || message.includes("❌")
-//           ? "❌"
+//         {message.includes("MATCH") || message.includes("")
+//           ? ""
+//           : message.includes("UNKNOWN") || message.includes("")
+//           ? ""
 //           : "👤"}
 //       </div>
 
@@ -835,7 +876,7 @@ return (
         position: "absolute",
         inset: 0,
         background:
-          "radial-gradient(ellipse at center, transparent 220px, rgba(0,0,0,0.55) 400px, rgba(0,0,0,0.88) 100%)",
+          "radial-gradient(ellipse at center, transparent 220px, rgba(0, 0, 0, 0.19) 400px, rgb(40, 38, 38) 100%)",
         zIndex: 1,
       }}
     />
@@ -905,7 +946,7 @@ return (
             backdropFilter: "blur(10px)",
           }}
         >
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+          {/* <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} /> */}
           {loading ? "Loading" : "Models Ready"}
         </div>
 
@@ -917,14 +958,14 @@ return (
             background: isVerifying ? "rgba(37,99,235,0.25)" : "rgba(100,116,139,0.2)",
             border: `1px solid ${isVerifying ? "rgba(96,165,250,0.4)" : "rgba(100,116,139,0.3)"}`,
             color: isVerifying ? "#93c5fd" : "#64748b",
-            padding: "5px 12px",
+            padding: "5px 10px",
             borderRadius: 999,
             fontSize: 12,
             fontWeight: 500,
             backdropFilter: "blur(10px)",
           }}
         >
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+          {/* <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} /> */}
           {isVerifying ? "Verifying" : "Standby"}
         </div>
       </div>
@@ -950,64 +991,147 @@ return (
       }}
     >
       {/* Today stat */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: 16,
-          padding: "18px 20px",
-          backdropFilter: "blur(16px)",
-        }}
-      >
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-          Today's Count
-        </div>
-        <div style={{ color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>24</div>
-        <div style={{ color: "rgba(74,222,128,0.9)", fontSize: 12, fontWeight: 500, marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
-          {/* Feather: trending-up */}
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-            <polyline points="17 6 23 6 23 12"/>
-          </svg>
-          +3 since yesterday
-        </div>
-      </div>
+    <div
+  style={{
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 16,
+    padding: "18px 20px",
+    backdropFilter: "blur(16px)",
+  }}
+>
+  <div
+    style={{
+      color: "rgba(255,255,255,0.45)",
+      fontSize: 11,
+      fontWeight: 500,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 6,
+    }}
+  >
+    Today's Date
+  </div>
+
+  <div
+    style={{
+      color: "#fff",
+      fontSize: 36,
+      fontWeight: 700,
+      lineHeight: 1,
+    }}
+  >
+    {new Date().getDate()}
+  </div>
+
+  <div
+    style={{
+      color: "#60a5fa",
+      fontSize: 13,
+      fontWeight: 600,
+      marginTop: 8,
+    }}
+  >
+    {new Date().toLocaleDateString([], {
+      month: "long",
+      year: "numeric",
+    })}
+  </div>
+
+  <div
+    style={{
+      color: "rgba(255,255,255,0.45)",
+      fontSize: 12,
+      marginTop: 4,
+    }}
+  >
+    {new Date().toLocaleDateString([], {
+      weekday: "long",
+    })}
+  </div>
+
+  <div
+    style={{
+      marginTop: 10,
+      paddingTop: 10,
+      borderTop: "1px solid rgba(255,255,255,0.08)",
+      color: "rgba(255,255,255,0.35)",
+      fontSize: 11,
+    }}
+  >
+    Attendance tracking active today
+  </div>
+</div>
 
       {/* Shift */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: 16,
-          padding: "18px 20px",
-          backdropFilter: "blur(16px)",
-        }}
-      >
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
-          Active Shift
-        </div>
-        <div style={{ color: "#fff", fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Morning</div>
-        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>09:00 AM – 05:00 PM</div>
-        <div
-          style={{
-            marginTop: 12,
-            height: 4,
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: 99,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: "62%",
-              background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
-              borderRadius: 99,
-            }}
-          />
-        </div>
-        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, marginTop: 5 }}>62% of shift elapsed</div>
-      </div>
+  <div
+  style={{
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 20,
+    padding: "24px",
+    backdropFilter: "blur(20px)",
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  }}
+>
+  <div
+    style={{
+      color: "rgba(255,255,255,0.45)",
+      fontSize: 11,
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.12em",
+    }}
+  >
+    Local Time
+  </div>
+
+  <div
+    style={{
+      color: "#fff",
+      fontSize: 29,
+      fontWeight: 700,
+      lineHeight: 1,
+    }}
+  >
+  {currentTime.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })}
+    </div>
+
+  <div
+    style={{
+      width: 40,
+      height: 2,
+      borderRadius: 99,
+      background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+      margin: "4px 0",
+    }}
+  />
+
+  <div
+    style={{
+      color: "#93c5fd",
+      fontSize: 15,
+      fontWeight: 600,
+    }}
+  >
+    {greeting}
+  </div>
+
+  <div
+    style={{
+      color: "rgba(255,255,255,0.35)",
+      fontSize: 12,
+    }}
+  >
+    Reception • Device #01
+  </div>
+</div>
 
       {/* Location */}
       <div
@@ -1028,8 +1152,8 @@ return (
           <circle cx="12" cy="10" r="3"/>
         </svg>
         <div>
-          <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Gate A Terminal</div>
-          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #04</div>
+      <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Reception</div>
+<div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #01</div>
         </div>
       </div>
     </div>
@@ -1202,7 +1326,7 @@ return (
       </div>
 
       {/* Recent log */}
-      <div
+      {/* <div
         style={{
           background: "rgba(255,255,255,0.06)",
           border: "1px solid rgba(255,255,255,0.1)",
@@ -1244,7 +1368,87 @@ return (
             <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>{p.time}</div>
           </div>
         ))}
+      </div> */}
+      <div
+  style={{
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 16,
+    padding: "16px 20px",
+    backdropFilter: "blur(16px)",
+  }}
+>
+  <div
+    style={{
+      color: "rgba(255,255,255,0.45)",
+      fontSize: 11,
+      fontWeight: 500,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 12,
+    }}
+  >
+    System Status
+  </div>
+
+ <div
+  style={{
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 16,
+    padding: "16px 20px",
+    backdropFilter: "blur(16px)",
+  }}
+>
+  <div
+    style={{
+      color: "rgba(255,255,255,0.45)",
+      fontSize: 11,
+      fontWeight: 500,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 12,
+    }}
+  >
+    System Status
+  </div>
+
+  {systemStatus.map((item, i) => (
+    <div
+      key={i}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: i < systemStatus.length - 1 ? 12 : 0,
+      }}
+    >
+      <div
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: item.online ? "#4ade80" : "#ef4444",
+          boxShadow: item.online
+            ? "0 0 10px rgba(74,222,128,.7)"
+            : "0 0 10px rgba(239,68,68,.7)",
+          flexShrink: 0,
+        }}
+      />
+
+      <div
+        style={{
+          color: "#fff",
+          fontSize: 12,
+          fontWeight: 500,
+        }}
+      >
+        {item.label}
       </div>
+    </div>
+  ))}
+</div>
+</div>
     </div>
 
     {/* RESULT BAR */}
@@ -1267,50 +1471,14 @@ return (
         zIndex: 10,
       }}
     >
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          background: message.includes("MATCH") || message.includes("✅")
-            ? "rgba(74,222,128,0.15)"
-            : message.includes("UNKNOWN") || message.includes("❌")
-            ? "rgba(248,113,113,0.15)"
-            : "rgba(255,255,255,0.08)",
-          border: `1px solid ${
-            message.includes("MATCH") || message.includes("✅")
-              ? "rgba(74,222,128,0.3)"
-              : message.includes("UNKNOWN") || message.includes("❌")
-              ? "rgba(248,113,113,0.3)"
-              : "rgba(255,255,255,0.12)"
-          }`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        {message.includes("MATCH") || message.includes("✅") ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        ) : message.includes("UNKNOWN") || message.includes("❌") ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
-        )}
-      </div>
+    
 
       <div style={{ whiteSpace: "pre-line" }}>
         <div
           style={{
-            color: message.includes("MATCH") || message.includes("✅")
-              ? "#4ade80"
-              : message.includes("UNKNOWN") || message.includes("❌")
+            color: message.includes("MATCH") || message.includes("")
+              ? "#ffffff"
+              : message.includes("UNKNOWN") || message.includes("")
               ? "#f87171"
               : "rgba(255,255,255,0.85)",
             fontSize: 15,
