@@ -374,6 +374,8 @@ return (
           border: "2px solid black",
           borderRadius: 10,
           display: "block",
+          //  display: "block",
+    transform: "scaleX(-1)",
         }}
       />
 
