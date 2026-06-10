@@ -338,30 +338,79 @@ Distance: ${bestDistance.toFixed(4)}`
 return (
   <div
     style={{
-      textAlign: "center",
-      padding: "20px",
+      width: "100vw",
+      height: "100vh",
+      background: "#f8fafc",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       fontFamily: "Arial",
-      width: "100%",
-      boxSizing: "border-box",
+      overflow: "hidden",
     }}
   >
-    <h1
+    {/* Left Buttons */}
+    <div
       style={{
-        fontSize: "clamp(24px, 4vw, 40px)",
-        marginBottom: 20,
+        width: 250,
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        alignItems: "center",
       }}
     >
-      Live Face Recognition
-    </h1>
+      <input
+        type="text"
+        placeholder="Employee Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={{
+          width: "90%",
+          padding: 15,
+          fontSize: 18,
+          borderRadius: 12,
+          border: "1px solid #ddd",
+          background: "#fff",
+        }}
+      />
 
-    {loading && <h3>Loading Models...</h3>}
+      <button
+        onClick={registerFace}
+        style={{
+          width: 200,
+          height: 60,
+          border: "none",
+          borderRadius: 15,
+          background: "#2563eb",
+          color: "#fff",
+          fontSize: 18,
+          cursor: "pointer",
+        }}
+      >
+        Register
+      </button>
 
+      <button
+        onClick={clearRegisteredFaces}
+        style={{
+          width: 200,
+          height: 60,
+          border: "none",
+          borderRadius: 15,
+          background: "#ef4444",
+          color: "#fff",
+          fontSize: 18,
+          cursor: "pointer",
+        }}
+      >
+        Clear Faces
+      </button>
+    </div>
+
+    {/* Camera Center */}
     <div
       style={{
         position: "relative",
-        display: "inline-block",
-        width: "90%",
-        maxWidth: "900px",
+        margin: "0 40px",
       }}
     >
       <video
@@ -370,11 +419,12 @@ return (
         muted
         playsInline
         style={{
-          width: "100%",
-          height: "auto",
-          border: "2px solid black",
-          borderRadius: 10,
-          display: "block",
+          width: 700,
+          height: 520,
+          objectFit: "cover",
+          borderRadius: 30,
+          background: "#fff",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
         }}
       />
 
@@ -382,118 +432,82 @@ return (
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(255, 0, 0, 0.55)",
-            color: "#fff",
+            inset: 0,
+            background: "rgba(255,0,0,0.5)",
+            borderRadius: 30,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
-            fontSize: "clamp(24px, 2vw, 32px)",
+            alignItems: "center",
+            color: "#fff",
+            fontSize: 32,
             fontWeight: "bold",
-            borderRadius: 10,
-            textAlign: "center",
-            padding: "20px",
-            boxSizing: "border-box",
           }}
         >
-          One Face At A Time
+          One Face Only
         </div>
       )}
     </div>
 
-    <br />
-    <br />
-
-    <input
-      type="text"
-      placeholder="Enter Name"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      style={{
-        padding: "12px",
-        width: "90%",
-        maxWidth: "400px",
-        fontSize: "18px",
-        marginBottom: "15px",
-        borderRadius: "8px",
-        boxSizing: "border-box",
-      }}
-    />
-
-    <br />
-
+    {/* Right Buttons */}
     <div
       style={{
+        width: 250,
         display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "10px",
+        flexDirection: "column",
+        gap: 20,
+        alignItems: "center",
       }}
     >
-      <button
-        onClick={registerFace}
-        style={{
-          padding: "14px 24px",
-          minWidth: "180px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Register Face
-      </button>
-
       {!isVerifying ? (
         <button
           onClick={startVerification}
           style={{
-            padding: "14px 24px",
-            minWidth: "180px",
-            fontSize: "16px",
+            width: 200,
+            height: 70,
+            border: "none",
+            borderRadius: 15,
+            background: "#22c55e",
+            color: "#fff",
+            fontSize: 20,
             cursor: "pointer",
           }}
         >
-          Start Verification
+          Start
         </button>
       ) : (
         <button
           onClick={stopVerification}
           style={{
-            padding: "14px 24px",
-            minWidth: "180px",
-            fontSize: "16px",
+            width: 200,
+            height: 70,
+            border: "none",
+            borderRadius: 15,
+            background: "#f97316",
+            color: "#fff",
+            fontSize: 20,
             cursor: "pointer",
           }}
         >
-          Stop Verification
+          Stop
         </button>
       )}
 
-      <button
-        onClick={clearRegisteredFaces}
+      <div
         style={{
-          padding: "14px 24px",
-          minWidth: "180px",
-          fontSize: "16px",
-          cursor: "pointer",
+          width: 220,
+          minHeight: 180,
+          background: "#fff",
+          borderRadius: 20,
+          padding: 20,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+          whiteSpace: "pre-line",
+          fontSize: 18,
+          fontWeight: 600,
+          textAlign: "center",
         }}
       >
-        Clear Faces
-      </button>
-    </div>
-
-    <div
-      style={{
-        marginTop: 20,
-        whiteSpace: "pre-line",
-        fontSize: "clamp(18px, 2vw, 24px)",
-        fontWeight: "bold",
-        padding: "0 10px",
-      }}
-    >
-      {message}
+        {message}
+      </div>
     </div>
   </div>
 );
