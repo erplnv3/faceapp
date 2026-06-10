@@ -799,14 +799,18 @@ Distance: ${bestDistance.toFixed(4)}`
 return (
   <div
     style={{
-      width: "100vw",
-      height: "100vh",
-      overflow: "hidden",
-      position: "relative",
-      background: "#000",
-      fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
-          position: 'relative',
-    left: '-136px',
+    //   width: "100vw",
+    //   height: "100vh",
+    //   overflow: "hidden",
+    //   position: "relative",
+    //   background: "#000",
+    //   fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+    //       position: 'relative',
+    // left: '-126px',
+    display:'flex',
+    justifyContent:'center',
+        //  width: "100vw",
+      // height: "100vh",
     }}
   >
     {/* CAMERA */}
