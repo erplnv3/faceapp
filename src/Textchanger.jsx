@@ -350,6 +350,8 @@ const getDescriptorFromVideo = async () => {
     setAttendanceRecord(null);
     setAttendanceResult(null);
     setMessage("");
+      lastMatchedRef.current = null;
+
   };
 
   // const registerFace = async () => {
