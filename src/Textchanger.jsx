@@ -502,63 +502,106 @@ Distance: ${bestDistance.toFixed(4)}`
 //     </div>
 //   </div>
 // );
- return (
+return (
   <div
     style={{
       height: "100vh",
-      background: "#000",
+      background:
+        "linear-gradient(135deg,#0f172a,#111827,#1e293b)",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center",
       alignItems: "center",
-      padding: 20,
+      justifyContent: "center",
+      padding: "20px",
       boxSizing: "border-box",
       overflow: "hidden",
+      fontFamily:
+        "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     }}
   >
+    {/* Header */}
+    <div
+      style={{
+        marginBottom: 20,
+        textAlign: "center",
+      }}
+    >
+      <h1
+        style={{
+          color: "#fff",
+          margin: 0,
+          fontSize: "36px",
+          fontWeight: 700,
+        }}
+      >
+        Face Attendance
+      </h1>
+
+      <p
+        style={{
+          color: "#94a3b8",
+          marginTop: 8,
+          fontSize: "16px",
+        }}
+      >
+        Look at the camera to mark attendance
+      </p>
+    </div>
+
+    {/* Status Chips */}
     <div
       style={{
         display: "flex",
-        gap: 10,
-        marginBottom: 15,
+        gap: 12,
+        marginBottom: 20,
         flexWrap: "wrap",
         justifyContent: "center",
       }}
     >
       <div
         style={{
-          background: loading ? "#444" : "#1f8f4d",
+          background: loading ? "#475569" : "#10b981",
           color: "#fff",
-          padding: "8px 16px",
-          borderRadius: 999,
+          padding: "10px 18px",
+          borderRadius: "999px",
           fontSize: 14,
           fontWeight: 600,
+          boxShadow: "0 4px 12px rgba(0,0,0,.2)",
         }}
       >
-        {loading ? "Loading Models..." : "Models Loaded"}
+        {loading ? "Loading Models..." : "✓ Models Ready"}
       </div>
 
       <div
         style={{
-          background: isVerifying ? "#2563eb" : "#444",
+          background: isVerifying
+            ? "#2563eb"
+            : "#475569",
           color: "#fff",
-          padding: "8px 16px",
-          borderRadius: 999,
+          padding: "10px 18px",
+          borderRadius: "999px",
           fontSize: 14,
           fontWeight: 600,
+          boxShadow: "0 4px 12px rgba(0,0,0,.2)",
         }}
       >
         {isVerifying
-          ? "Verification Active"
+          ? "● Verification Active"
           : "Starting Verification"}
       </div>
     </div>
 
+    {/* Camera Card */}
     <div
       style={{
         position: "relative",
         width: "100%",
-        maxWidth: "900px",
+        maxWidth: "950px",
+        borderRadius: "28px",
+        overflow: "hidden",
+        boxShadow:
+          "0 25px 60px rgba(0,0,0,.45)",
+        background: "#000",
       }}
     >
       <video
@@ -568,9 +611,24 @@ Distance: ${bestDistance.toFixed(4)}`
         playsInline
         style={{
           width: "100%",
-          borderRadius: 20,
-          transform: "scaleX(-1)",
           display: "block",
+          transform: "scaleX(-1)",
+        }}
+      />
+
+      {/* Face Guide */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "260px",
+          height: "320px",
+          transform: "translate(-50%, -50%)",
+          border:
+            "4px solid rgba(255,255,255,.7)",
+          borderRadius: "50%",
+          pointerEvents: "none",
         }}
       />
 
@@ -579,14 +637,15 @@ Distance: ${bestDistance.toFixed(4)}`
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(255,0,0,.75)",
-            color: "#fff",
+            background:
+              "rgba(239,68,68,.85)",
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
-            fontSize: 32,
+            justifyContent: "center",
+            color: "#fff",
+            fontSize: "34px",
             fontWeight: 700,
-            borderRadius: 20,
+            textAlign: "center",
           }}
         >
           ONE FACE AT A TIME
@@ -594,13 +653,22 @@ Distance: ${bestDistance.toFixed(4)}`
       )}
     </div>
 
+    {/* Status Card */}
     <div
       style={{
-        marginTop: 15,
+        marginTop: 20,
+        minWidth: "350px",
+        maxWidth: "700px",
+        background:
+          "rgba(255,255,255,.08)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255,255,255,.1)",
+        padding: "16px 24px",
+        borderRadius: "18px",
         color: "#fff",
-        fontSize: 18,
-        fontWeight: 600,
         textAlign: "center",
+        fontSize: "18px",
+        fontWeight: 600,
         whiteSpace: "pre-line",
       }}
     >
