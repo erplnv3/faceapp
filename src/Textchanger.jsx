@@ -804,8 +804,7 @@ return (
       overflow: "hidden",
       position: "relative",
       background: "#000",
-      fontFamily:
-        "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+      fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     }}
   >
     {/* CAMERA */}
@@ -824,60 +823,208 @@ return (
       }}
     />
 
-    {/* DARK OVERLAY */}
+    {/* VIGNETTE */}
     <div
       style={{
         position: "absolute",
         inset: 0,
         background:
-          "radial-gradient(circle at center, transparent 170px, rgba(0,0,0,.75) 171px)",
+          "radial-gradient(ellipse at center, transparent 220px, rgba(0,0,0,0.55) 400px, rgba(0,0,0,0.88) 100%)",
+        zIndex: 1,
       }}
     />
 
-    {/* TOP STATUS */}
+    {/* TOP BAR */}
     <div
       style={{
         position: "absolute",
-        top: 25,
-        left: "50%",
-        transform: "translateX(-50%)",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 64,
         display: "flex",
-        gap: 12,
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 32px",
+        background: "rgba(0,0,0,0.35)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        zIndex: 20,
+      }}
+    >
+      {/* Logo */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            background: "rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid rgba(255,255,255,0.18)",
+          }}
+        >
+          {/* Feather: aperture */}
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="14.31" y1="8" x2="20.05" y2="17.94"/>
+            <line x1="9.69" y1="8" x2="21.17" y2="8"/>
+            <line x1="7.38" y1="12" x2="13.12" y2="2.06"/>
+            <line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+            <line x1="14.31" y1="16" x2="2.83" y2="16"/>
+            <line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+          </svg>
+        </div>
+        <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, letterSpacing: "-0.01em" }}>
+          FaceID Attendance
+        </span>
+      </div>
+
+      {/* Status pills */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: loading ? "rgba(100,116,139,0.3)" : "rgba(22,163,74,0.2)",
+            border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`,
+            color: loading ? "#94a3b8" : "#4ade80",
+            padding: "5px 12px",
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 500,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+          {loading ? "Loading" : "Models Ready"}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: isVerifying ? "rgba(37,99,235,0.25)" : "rgba(100,116,139,0.2)",
+            border: `1px solid ${isVerifying ? "rgba(96,165,250,0.4)" : "rgba(100,116,139,0.3)"}`,
+            color: isVerifying ? "#93c5fd" : "#64748b",
+            padding: "5px 12px",
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 500,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+          {isVerifying ? "Verifying" : "Standby"}
+        </div>
+      </div>
+
+      {/* Clock */}
+      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 500, letterSpacing: "0.02em" }}>
+        {new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+      </div>
+    </div>
+
+    {/* LEFT PANEL */}
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: 40,
+        transform: "translateY(-50%)",
+        width: 220,
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
         zIndex: 10,
       }}
     >
+      {/* Today stat */}
       <div
         style={{
-          background: loading
-            ? "rgba(100,116,139,.85)"
-            : "rgba(22,163,74,.85)",
-          color: "#fff",
-          padding: "10px 18px",
-          borderRadius: 999,
-          fontWeight: 600,
-          backdropFilter: "blur(10px)",
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 16,
+          padding: "18px 20px",
+          backdropFilter: "blur(16px)",
         }}
       >
-        {loading
-          ? "Loading Models"
-          : "✓ Models Ready"}
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+          Today's Count
+        </div>
+        <div style={{ color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>24</div>
+        <div style={{ color: "rgba(74,222,128,0.9)", fontSize: 12, fontWeight: 500, marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
+          {/* Feather: trending-up */}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+          +3 since yesterday
+        </div>
       </div>
 
+      {/* Shift */}
       <div
         style={{
-          background: isVerifying
-            ? "rgba(37,99,235,.85)"
-            : "rgba(100,116,139,.85)",
-          color: "#fff",
-          padding: "10px 18px",
-          borderRadius: 999,
-          fontWeight: 600,
-          backdropFilter: "blur(10px)",
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 16,
+          padding: "18px 20px",
+          backdropFilter: "blur(16px)",
         }}
       >
-        {isVerifying
-          ? "Verification Active"
-          : "Starting Verification"}
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+          Active Shift
+        </div>
+        <div style={{ color: "#fff", fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Morning</div>
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>09:00 AM – 05:00 PM</div>
+        <div
+          style={{
+            marginTop: 12,
+            height: 4,
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: 99,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: "62%",
+              background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+              borderRadius: 99,
+            }}
+          />
+        </div>
+        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, marginTop: 5 }}>62% of shift elapsed</div>
+      </div>
+
+      {/* Location */}
+      <div
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 16,
+          padding: "16px 20px",
+          backdropFilter: "blur(16px)",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        {/* Feather: map-pin */}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <div>
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Gate A Terminal</div>
+          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #04</div>
+        </div>
       </div>
     </div>
 
@@ -887,122 +1034,312 @@ return (
         position: "absolute",
         top: "50%",
         left: "50%",
-        width: 280,
-        height: 340,
         transform: "translate(-50%, -50%)",
-        borderRadius: "50%",
-        border: "4px solid rgba(255,255,255,.95)",
-        boxShadow:
-          "0 0 40px rgba(255,255,255,.4)",
         zIndex: 5,
       }}
-    />
+    >
+      {/* Oval */}
+      <div
+        style={{
+          width: 270,
+          height: 330,
+          borderRadius: "50%",
+          border: "2px solid rgba(255,255,255,0.55)",
+          position: "relative",
+        }}
+      >
+        {/* Corner marks */}
+        {[
+          { top: -3, left: -3, borderTop: "3px solid #fff", borderLeft: "3px solid #fff", borderRadius: "6px 0 0 0" },
+          { top: -3, right: -3, borderTop: "3px solid #fff", borderRight: "3px solid #fff", borderRadius: "0 6px 0 0" },
+          { bottom: -3, left: -3, borderBottom: "3px solid #fff", borderLeft: "3px solid #fff", borderRadius: "0 0 0 6px" },
+          { bottom: -3, right: -3, borderBottom: "3px solid #fff", borderRight: "3px solid #fff", borderRadius: "0 0 6px 0" },
+        ].map((s, i) => (
+          <div key={i} style={{ position: "absolute", width: 22, height: 22, ...s }} />
+        ))}
+      </div>
 
-    {/* GUIDE TEXT */}
+      {/* Guide label */}
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: 20,
+          color: "rgba(255,255,255,0.6)",
+          fontSize: 13,
+          fontWeight: 500,
+          letterSpacing: "0.02em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+        }}
+      >
+        {/* Feather: eye */}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        Position face within guide
+      </div>
+    </div>
+
+    {/* RIGHT PANEL — Last matched user */}
     <div
       style={{
         position: "absolute",
-        top: "calc(50% + 220px)",
-        left: "50%",
-        transform: "translateX(-50%)",
-        color: "#fff",
-        fontSize: 20,
-        fontWeight: 600,
-        textShadow:
-          "0 2px 12px rgba(0,0,0,.8)",
+        top: "50%",
+        right: 40,
+        transform: "translateY(-50%)",
+        width: 230,
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
         zIndex: 10,
       }}
     >
-      Position your face inside the guide
+      {/* Last verified card */}
+      <div
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 16,
+          padding: "18px 20px",
+          backdropFilter: "blur(16px)",
+        }}
+      >
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+          Last Verified
+        </div>
+
+        {/* Avatar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 16,
+              fontWeight: 700,
+              color: "#fff",
+              flexShrink: 0,
+            }}
+          >
+            AK
+          </div>
+          <div>
+            <div style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>Arjun Kumar</div>
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 1 }}>EMP-0047</div>
+          </div>
+        </div>
+
+        {/* Meta rows */}
+        {[
+          {
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            ),
+            label: "9:42 AM",
+          },
+          {
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            ),
+            label: "Gate A",
+          },
+          {
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            ),
+            label: "Confidence 97%",
+          },
+        ].map((row, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.5)", fontSize: 12, marginBottom: 6 }}>
+            {row.icon}
+            {row.label}
+          </div>
+        ))}
+
+        <div
+          style={{
+            marginTop: 10,
+            background: "rgba(74,222,128,0.12)",
+            border: "1px solid rgba(74,222,128,0.25)",
+            borderRadius: 8,
+            padding: "6px 10px",
+            color: "#4ade80",
+            fontSize: 12,
+            fontWeight: 600,
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          {/* Feather: check-circle */}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Attendance Marked
+        </div>
+      </div>
+
+      {/* Recent log */}
+      <div
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 16,
+          padding: "16px 20px",
+          backdropFilter: "blur(16px)",
+        }}
+      >
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
+          Recent
+        </div>
+        {[
+          { initials: "SR", name: "Sneha R.", time: "9:38 AM", color: "#f97316" },
+          { initials: "MT", name: "Mihir T.", time: "9:31 AM", color: "#a78bfa" },
+          { initials: "PD", name: "Priya D.", time: "9:24 AM", color: "#34d399" },
+        ].map((p, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < 2 ? 10 : 0 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: p.color + "33",
+                border: `1px solid ${p.color}55`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                color: p.color,
+                flexShrink: 0,
+              }}
+            >
+              {p.initials}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: "#fff", fontSize: 12, fontWeight: 500 }}>{p.name}</div>
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>{p.time}</div>
+          </div>
+        ))}
+      </div>
     </div>
 
-    {/* RESULT */}
+    {/* RESULT BAR */}
     <div
       style={{
         position: "absolute",
-        bottom: 40,
+        bottom: 32,
         left: "50%",
         transform: "translateX(-50%)",
-        minWidth: 400,
-        maxWidth: 800,
-        background: "rgba(0,0,0,.35)",
-        backdropFilter: "blur(15px)",
-        border: "1px solid rgba(255,255,255,.15)",
-        borderRadius: 24,
-        padding: "20px 30px",
-        textAlign: "center",
-        color: "#fff",
+        minWidth: 360,
+        maxWidth: 560,
+        background: "rgba(0,0,0,0.45)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 20,
+        padding: "18px 28px",
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
         zIndex: 10,
       }}
     >
       <div
         style={{
-          fontSize: 60,
-          marginBottom: 10,
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: message.includes("MATCH") || message.includes("✅")
+            ? "rgba(74,222,128,0.15)"
+            : message.includes("UNKNOWN") || message.includes("❌")
+            ? "rgba(248,113,113,0.15)"
+            : "rgba(255,255,255,0.08)",
+          border: `1px solid ${
+            message.includes("MATCH") || message.includes("✅")
+              ? "rgba(74,222,128,0.3)"
+              : message.includes("UNKNOWN") || message.includes("❌")
+              ? "rgba(248,113,113,0.3)"
+              : "rgba(255,255,255,0.12)"
+          }`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
         }}
       >
-        {message.includes("MATCH") ||
-        message.includes("✅")
-          ? "✅"
-          : message.includes("UNKNOWN") ||
-            message.includes("❌")
-          ? "❌"
-          : "👤"}
+        {message.includes("MATCH") || message.includes("✅") ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        ) : message.includes("UNKNOWN") || message.includes("❌") ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        )}
       </div>
 
-      <div
-        style={{
-          fontSize: 24,
-          fontWeight: 700,
-          whiteSpace: "pre-line",
-        }}
-      >
-        {message || "Waiting for face..."}
+      <div style={{ whiteSpace: "pre-line" }}>
+        <div
+          style={{
+            color: message.includes("MATCH") || message.includes("✅")
+              ? "#4ade80"
+              : message.includes("UNKNOWN") || message.includes("❌")
+              ? "#f87171"
+              : "rgba(255,255,255,0.85)",
+            fontSize: 15,
+            fontWeight: 600,
+            lineHeight: 1.5,
+          }}
+        >
+          {message || "Waiting for face…"}
+        </div>
       </div>
     </div>
 
-    {/* MULTIPLE FACE WARNING */}
+    {/* MULTIPLE FACES WARNING */}
     {multipleFaces && (
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background:
-            "rgba(220,38,38,.88)",
+          background: "rgba(153,27,27,0.92)",
+          backdropFilter: "blur(8px)",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          color: "#fff",
+          justifyContent: "center",
+          gap: 12,
           zIndex: 50,
         }}
       >
-        <div
-          style={{
-            fontSize: 100,
-          }}
-        >
-          ⚠️
-        </div>
-
-        <div
-          style={{
-            fontSize: 40,
-            fontWeight: 700,
-            marginTop: 10,
-          }}
-        >
-          One Face At A Time
-        </div>
-
-        <div
-          style={{
-            marginTop: 10,
-            fontSize: 20,
-          }}
-        >
-          Please ensure only one employee is visible
-        </div>
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div style={{ color: "#fff", fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>One face at a time</div>
+        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15 }}>Please ensure only one employee is visible</div>
       </div>
     )}
   </div>
