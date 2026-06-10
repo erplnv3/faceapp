@@ -344,6 +344,14 @@ const getDescriptorFromVideo = async () => {
     setMessage(`Sending ${action.replace("_", " ")} request...`);
   };
 
+  const closeEmployeeModal = () => {
+    setEmployee(null);
+    setAttendanceStatus(null);
+    setAttendanceRecord(null);
+    setAttendanceResult(null);
+    setMessage("");
+  };
+
   // const registerFace = async () => {
   //   try {
   //     if (!name.trim()) {
@@ -492,7 +500,7 @@ Distance: ${bestDistance.toFixed(4)}`
     } catch (error) {
       console.log(error);
     }
-  }, 1000);
+  }, 300);
 };
 
   const stopVerification = () => {
@@ -1008,8 +1016,33 @@ return (
             boxShadow: "0 40px 120px rgba(0,0,0,0.35)",
             padding: 28,
             color: "#fff",
+            position: "relative",
           }}
         >
+          <button
+            onClick={closeEmployeeModal}
+            aria-label="Close"
+            style={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
           <div
             style={{
               display: "flex",
