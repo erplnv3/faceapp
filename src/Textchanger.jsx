@@ -502,261 +502,500 @@ Distance: ${bestDistance.toFixed(4)}`
 //     </div>
 //   </div>
 // );
+// return (
+  
+// <div
+//   style={{
+//     width: "100%",
+//     maxWidth: 1400,
+//     flex: 1,
+//     display: "grid",
+//     gridTemplateColumns: "260px 1fr 260px",
+//     gap: 20,
+//     minHeight: 0,
+//     height: "calc(100vh - 8px)", // adjust as needed
+//   }}
+// >
+//   {/* LEFT PANEL */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       padding: 20,
+//       display: "flex",
+//       flexDirection: "column",
+//       gap: 20,
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         STATUS
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: loading
+//             ? "#64748b"
+//             : isVerifying
+//             ? "#2563eb"
+//             : "#16a34a",
+//         }}
+//       >
+//         {loading ? "Loading" : isVerifying ? "Scanning" : "Ready"}
+//       </div>
+//     </div>
+
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         DETECTION
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: multipleFaces ? "#dc2626" : "#16a34a",
+//         }}
+//       >
+//         {multipleFaces ? "Multiple" : "Single"}
+//       </div>
+//     </div>
+
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         MODE
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: "#111",
+//         }}
+//       >
+//         Auto Verify
+//       </div>
+//     </div>
+//   </div>
+
+//   {/* CENTER CAMERA */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       overflow: "hidden",
+//       position: "relative",
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div
+//       style={{
+//         position: "relative",
+//         width: "100%",
+//         height: "100%",
+//         background: "#000",
+//       }}
+//     >
+//       <video
+//         ref={videoRef}
+//         autoPlay
+//         muted
+//         playsInline
+//         style={{
+//           width: "100%",
+//           height: "100%",
+//           objectFit: "cover",
+//           transform: "scaleX(-1)",
+//         }}
+//       />
+
+//       {/* Face Guide */}
+//       <div
+//         style={{
+//           position: "absolute",
+//           top: "50%",
+//           left: "50%",
+//           width: 220,
+//           height: 280,
+//           transform: "translate(-50%, -50%)",
+//           border: "2px solid rgba(255,255,255,0.5)",
+//           borderRadius: "50%",
+//           pointerEvents: "none",
+//         }}
+//       />
+
+//       {/* Multiple Faces Warning */}
+//       {multipleFaces && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             inset: 0,
+//             background: "rgba(220,38,38,0.85)",
+//             display: "flex",
+//             flexDirection: "column",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             color: "#fff",
+//             gap: 12,
+//           }}
+//         >
+//           <div
+//             style={{
+//               fontSize: 30,
+//               fontWeight: 700,
+//             }}
+//           >
+//             ⚠️
+//           </div>
+
+//           <div
+//             style={{
+//               fontSize: 22,
+//               fontWeight: 700,
+//             }}
+//           >
+//             One Face At A Time
+//           </div>
+
+//           <div
+//             style={{
+//               fontSize: 14,
+//               opacity: 0.9,
+//             }}
+//           >
+//             Please ensure only one person is visible
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   </div>
+
+//   {/* RIGHT PANEL */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       padding: 20,
+//       display: "flex",
+//       flexDirection: "column",
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div
+//       style={{
+//         fontSize: 11,
+//         color: "#94a3b8",
+//         marginBottom: 12,
+//         letterSpacing: "0.05em",
+//       }}
+//     >
+//       VERIFICATION RESULT
+//     </div>
+
+//     <div
+//       style={{
+//         flex: 1,
+//         display: "flex",
+//         flexDirection: "column",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         textAlign: "center",
+//       }}
+//     >
+//       <div
+//         style={{
+//           fontSize: 70,
+//           marginBottom: 20,
+//         }}
+//       >
+//         {message.includes("MATCH") || message.includes("✅")
+//           ? "✅"
+//           : message.includes("UNKNOWN") || message.includes("❌")
+//           ? "❌"
+//           : "👤"}
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 18,
+//           fontWeight: 700,
+//           color: "#111",
+//           whiteSpace: "pre-line",
+//           lineHeight: 1.6,
+//         }}
+//       >
+//         {message || "Waiting for face..."}
+//       </div>
+//     </div>
+//   </div>
+// </div>
+
+
+// );
 return (
-<div
+  <>
+  <div
   style={{
-    width: "100%",
-    maxWidth: 1400,
-    flex: 1,
-    display: "grid",
-    gridTemplateColumns: "260px 1fr 260px",
-    gap: 20,
-    minHeight: 0,
-    height: "calc(100vh - 8px)", // adjust as needed
+    width: "100vw",
+    height: "100vh",
+    position: "relative",
+    overflow: "hidden",
+    background: "#000",
   }}
 >
-  {/* LEFT PANEL */}
-  <div
+  {/* Camera */}
+  <video
+    ref={videoRef}
+    autoPlay
+    muted
+    playsInline
     style={{
-      background: "#fff",
-      borderRadius: 20,
-      border: "1px solid #e9ecef",
-      padding: 20,
-      display: "flex",
-      flexDirection: "column",
-      gap: 20,
-      boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      transform: "scaleX(-1)",
     }}
-  >
-    <div>
-      <div
-        style={{
-          fontSize: 11,
-          color: "#94a3b8",
-          marginBottom: 6,
-          letterSpacing: "0.05em",
-        }}
-      >
-        STATUS
-      </div>
+  />
 
-      <div
-        style={{
-          fontSize: 24,
-          fontWeight: 700,
-          color: loading
-            ? "#64748b"
-            : isVerifying
-            ? "#2563eb"
-            : "#16a34a",
-        }}
-      >
-        {loading ? "Loading" : isVerifying ? "Scanning" : "Ready"}
-      </div>
-    </div>
-
-    <div>
-      <div
-        style={{
-          fontSize: 11,
-          color: "#94a3b8",
-          marginBottom: 6,
-          letterSpacing: "0.05em",
-        }}
-      >
-        DETECTION
-      </div>
-
-      <div
-        style={{
-          fontSize: 24,
-          fontWeight: 700,
-          color: multipleFaces ? "#dc2626" : "#16a34a",
-        }}
-      >
-        {multipleFaces ? "Multiple" : "Single"}
-      </div>
-    </div>
-
-    <div>
-      <div
-        style={{
-          fontSize: 11,
-          color: "#94a3b8",
-          marginBottom: 6,
-          letterSpacing: "0.05em",
-        }}
-      >
-        MODE
-      </div>
-
-      <div
-        style={{
-          fontSize: 24,
-          fontWeight: 700,
-          color: "#111",
-        }}
-      >
-        Auto Verify
-      </div>
-    </div>
-  </div>
-
-  {/* CENTER CAMERA */}
+  {/* Dark Overlay */}
   <div
     style={{
-      background: "#fff",
-      borderRadius: 20,
-      border: "1px solid #e9ecef",
-      overflow: "hidden",
-      position: "relative",
-      boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+      position: "absolute",
+      inset: 0,
+      background:
+        "linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.1), rgba(0,0,0,.65))",
+    }}
+  />
+
+  {/* Header */}
+  <div
+    style={{
+      position: "absolute",
+      top: 25,
+      left: 30,
+      zIndex: 10,
+      color: "#fff",
     }}
   >
     <div
       style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        background: "#000",
+        fontSize: 34,
+        fontWeight: 700,
       }}
     >
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: "scaleX(-1)",
-        }}
-      />
+      Face Attendance
+    </div>
 
-      {/* Face Guide */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: 220,
-          height: 280,
-          transform: "translate(-50%, -50%)",
-          border: "2px solid rgba(255,255,255,0.5)",
-          borderRadius: "50%",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Multiple Faces Warning */}
-      {multipleFaces && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(220,38,38,0.85)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            color: "#fff",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 30,
-              fontWeight: 700,
-            }}
-          >
-            ⚠️
-          </div>
-
-          <div
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-            }}
-          >
-            One Face At A Time
-          </div>
-
-          <div
-            style={{
-              fontSize: 14,
-              opacity: 0.9,
-            }}
-          >
-            Please ensure only one person is visible
-          </div>
-        </div>
-      )}
+    <div
+      style={{
+        opacity: 0.8,
+        marginTop: 6,
+        fontSize: 16,
+      }}
+    >
+      Look at the camera to mark attendance
     </div>
   </div>
 
-  {/* RIGHT PANEL */}
+  {/* Status Chips */}
   <div
     style={{
-      background: "#fff",
-      borderRadius: 20,
-      border: "1px solid #e9ecef",
-      padding: 20,
+      position: "absolute",
+      top: 25,
+      right: 30,
       display: "flex",
-      flexDirection: "column",
-      boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+      gap: 12,
+      zIndex: 10,
     }}
   >
     <div
       style={{
-        fontSize: 11,
-        color: "#94a3b8",
+        padding: "12px 18px",
+        borderRadius: 14,
+        background: loading
+          ? "rgba(100,116,139,.9)"
+          : "rgba(22,163,74,.95)",
+        color: "#fff",
+        fontWeight: 600,
+      }}
+    >
+      {loading ? "Loading Models" : "Models Ready"}
+    </div>
+
+    <div
+      style={{
+        padding: "12px 18px",
+        borderRadius: 14,
+        background: isVerifying
+          ? "rgba(37,99,235,.95)"
+          : "rgba(100,116,139,.9)",
+        color: "#fff",
+        fontWeight: 600,
+      }}
+    >
+      {isVerifying
+        ? "Verification Active"
+        : "Starting"}
+    </div>
+  </div>
+
+  {/* Face Guide */}
+  <div
+    style={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: 280,
+      height: 340,
+      transform: "translate(-50%, -50%)",
+      border: "4px solid rgba(255,255,255,.85)",
+      borderRadius: "50%",
+      boxShadow:
+        "0 0 0 9999px rgba(0,0,0,.15)",
+      pointerEvents: "none",
+      zIndex: 5,
+    }}
+  />
+
+  {/* Instructions */}
+  <div
+    style={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, 220px)",
+      color: "#fff",
+      fontSize: 22,
+      fontWeight: 600,
+      zIndex: 10,
+      textAlign: "center",
+    }}
+  >
+    Position your face inside the guide
+  </div>
+
+  {/* Result Card */}
+  <div
+    style={{
+      position: "absolute",
+      bottom: 35,
+      left: "50%",
+      transform: "translateX(-50%)",
+      minWidth: 420,
+      maxWidth: 800,
+      background: "rgba(0,0,0,.75)",
+      backdropFilter: "blur(15px)",
+      border: "1px solid rgba(255,255,255,.1)",
+      borderRadius: 24,
+      padding: "24px 34px",
+      textAlign: "center",
+      color: "#fff",
+      zIndex: 10,
+    }}
+  >
+    <div
+      style={{
+        fontSize: 60,
         marginBottom: 12,
-        letterSpacing: "0.05em",
       }}
     >
-      VERIFICATION RESULT
+      {message.includes("MATCH") ||
+      message.includes("✅")
+        ? "✅"
+        : message.includes("UNKNOWN") ||
+          message.includes("❌")
+        ? "❌"
+        : "👤"}
     </div>
 
     <div
       style={{
-        flex: 1,
+        fontSize: 24,
+        fontWeight: 700,
+        whiteSpace: "pre-line",
+        lineHeight: 1.5,
+      }}
+    >
+      {message || "Waiting for face..."}
+    </div>
+  </div>
+
+  {/* Multiple Face Warning */}
+  {multipleFaces && (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(220,38,38,.92)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        textAlign: "center",
+        color: "#fff",
+        zIndex: 20,
       }}
     >
       <div
         style={{
-          fontSize: 70,
-          marginBottom: 20,
+          fontSize: 100,
         }}
       >
-        {message.includes("MATCH") || message.includes("✅")
-          ? "✅"
-          : message.includes("UNKNOWN") || message.includes("❌")
-          ? "❌"
-          : "👤"}
+        ⚠️
       </div>
 
       <div
         style={{
-          fontSize: 18,
+          fontSize: 42,
           fontWeight: 700,
-          color: "#111",
-          whiteSpace: "pre-line",
-          lineHeight: 1.6,
+          marginTop: 10,
         }}
       >
-        {message || "Waiting for face..."}
+        ONE FACE AT A TIME
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          fontSize: 18,
+          opacity: 0.95,
+        }}
+      >
+        Please ensure only one employee is visible
       </div>
     </div>
-  </div>
+  )}
 </div>
-);
-
+  </>
+)
 }
 
 export default Textchanger;
