@@ -77,7 +77,7 @@ useEffect(() => {
     // payload expected shape: { employee: {...}, attendanceStatus: 'PUNCH_IN'|'PUNCH_OUT'|'COMPLETED', attendanceRecord: {...} }
     const emp = payload.employee || payload;
     setEmployee(emp);
-    setAttendanceDetails(payload.attendancedetails);
+    setAttendanceDetails(payload.employeeDetails)
     setAttendanceStatus(payload.attendanceStatus || null);
     setAttendanceRecord(payload.attendanceRecord || null);
     setAttendanceResult(null);
@@ -1080,13 +1080,13 @@ return (
                     fontWeight: 700,
                   }}
                 >
-                  {attendanceDetails?.firstname?.[0] || "E"}
+                  {employee?.name?.[0] || "E"}
                 </div>
               )}
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                {attendanceDetails?.firstname || "Employee"}
+                {employee?.name || "Employee"}
               </div>
               <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
                 {employeeCode || "Code unavailable"}
