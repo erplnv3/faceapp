@@ -8,6 +8,8 @@ import * as faceapi from "face-api.js";
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [name, setName] = useState("");
+  const [employee, setEmployee] = useState(null);
+  const [attendanceResult, setAttendanceResult] = useState(null);
   const [multipleFaces, setMultipleFaces] = useState(false);
   const lastMatchedRef = useRef(null);
 const [currentTime, setCurrentTime] = useState(new Date());
@@ -51,6 +53,56 @@ let greeting = "Good Morning";
 if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
 else if (hour >= 17 && hour < 21) greeting = "Good Evening";
 else if (hour >= 21 || hour < 5) greeting = "Good Night";
+
+useEffect(() => {
+  const parseEventDetail = (payload) => {
+    if (!payload) return null;
+    if (typeof payload === "string") {
+      try {
+        return JSON.parse(payload);
+      } catch {
+        return payload;
+      }
+    }
+    return payload;
+  };
+
+  const handleEmployeeMatched = (event) => {
+    const employeeData = parseEventDetail(event.detail);
+    if (!employeeData) return;
+    setEmployee(employeeData);
+    setAttendanceResult(null);
+    setMessage("Employee matched. Please select Punch In or Punch Out.");
+  };
+
+  const handleAttendanceResult = (event) => {
+    const resultData = parseEventDetail(event.detail);
+    if (!resultData) return;
+    setAttendanceResult(resultData);
+    setMessage(resultData.message || "Attendance update received.");
+  };
+
+  window.addEventListener("employeeMatched", handleEmployeeMatched);
+  window.addEventListener("attendanceResult", handleAttendanceResult);
+
+  return () => {
+    window.removeEventListener("employeeMatched", handleEmployeeMatched);
+    window.removeEventListener("attendanceResult", handleAttendanceResult);
+  };
+}, []);
+
+useEffect(() => {
+  if (attendanceResult?.success) {
+    const timeout = setTimeout(() => {
+      setEmployee(null);
+      setAttendanceResult(null);
+      setMessage("");
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+  }
+}, [attendanceResult]);
+
 useEffect(() => {
   initialize();
 
@@ -242,6 +294,28 @@ const getDescriptorFromVideo = async () => {
     setMessage(" Registration Failed");
   }
 };
+
+  const sendPunchAction = (action) => {
+    if (!employee) {
+      setMessage("No employee selected for attendance action.");
+      return;
+    }
+
+    if (!window.ReactNativeWebView) {
+      setMessage("Unable to send action to native host.");
+      return;
+    }
+
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        type: action,
+        employee,
+      })
+    );
+
+    setMessage(`Sending ${action.replace("_", " ")} request...`);
+  };
+
   // const registerFace = async () => {
   //   try {
   //     if (!name.trim()) {
@@ -837,6 +911,34 @@ Distance: ${bestDistance.toFixed(4)}`
 
 
 // );
+const employeePhoto =
+  employee?.photo ||
+  employee?.photoUrl ||
+  employee?.avatar ||
+  employee?.profileImage ||
+  employee?.image;
+
+const employeeCode =
+  employee?.employeeCode ||
+  employee?.code ||
+  employee?.employeeId ||
+  employee?.id ||
+  employee?.empCode;
+
+const employeeDepartment =
+  employee?.department ||
+  employee?.dept ||
+  employee?.division;
+
+const employeeDesignation =
+  employee?.designation ||
+  employee?.jobTitle ||
+  employee?.title;
+
+const attendanceMessage =
+  attendanceResult?.message ||
+  (attendanceResult ? "Attendance action completed." : "");
+
 return (
   <div
     style={{
@@ -854,6 +956,146 @@ return (
       // height: "100vh",
     }}
   >
+    {employee && (
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 80,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(0,0,0,0.55)",
+          padding: 24,
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 560,
+            borderRadius: 28,
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.14)",
+            backdropFilter: "blur(28px)",
+            boxShadow: "0 40px 120px rgba(0,0,0,0.35)",
+            padding: 28,
+            color: "#fff",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 18,
+              marginBottom: 22,
+            }}
+          >
+            <div
+              style={{
+                width: 88,
+                height: 88,
+                borderRadius: 22,
+                overflow: "hidden",
+                background: "rgba(255,255,255,0.1)",
+                display: "grid",
+                placeItems: "center",
+                border: "1px solid rgba(255,255,255,0.18)",
+              }}
+            >
+              {employeePhoto ? (
+                <img
+                  src={employeePhoto}
+                  alt="Employee"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    color: "rgba(255,255,255,0.65)",
+                    fontSize: 24,
+                    fontWeight: 700,
+                  }}
+                >
+                  {employee?.name?.[0] || "E"}
+                </div>
+              )}
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                {employee?.name || "Employee"}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
+                {employeeCode || "Code unavailable"}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
+            <div>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 6 }}>
+                Department
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>{employeeDepartment || "Unknown"}</div>
+            </div>
+            <div>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 6 }}>
+                Designation
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>{employeeDesignation || "Unknown"}</div>
+            </div>
+          </div>
+          {attendanceMessage && (
+            <div
+              style={{
+                padding: "14px 18px",
+                borderRadius: 18,
+                background: attendanceResult?.success ? "rgba(34,197,94,0.16)" : "rgba(248,113,113,0.16)",
+                border: `1px solid ${attendanceResult?.success ? "rgba(34,197,94,0.25)" : "rgba(248,113,113,0.25)"}`,
+                color: attendanceResult?.success ? "#d1fae5" : "#fecaca",
+                marginBottom: 20,
+                fontSize: 14,
+                lineHeight: 1.5,
+              }}
+            >
+              {attendanceMessage}
+            </div>
+          )}
+          <div style={{ display: "grid", gap: 14 }}>
+            <button
+              onClick={() => sendPunchAction("PUNCH_IN")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                borderRadius: 16,
+                border: "none",
+                background: "linear-gradient(135deg, #22c55e, #4ade80)",
+                color: "#071c0a",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Punch In
+            </button>
+            <button
+              onClick={() => sendPunchAction("PUNCH_OUT")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                borderRadius: 16,
+                border: "1px solid rgba(255,255,255,0.18)",
+                background: "rgba(255,255,255,0.08)",
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Punch Out
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     {/* CAMERA */}
     <video
       ref={videoRef}
