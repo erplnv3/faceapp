@@ -346,185 +346,204 @@ return (
   <div
     style={{
       minHeight: "100vh",
-      background: "#000",
-      color: "#fff",
-      padding: "24px",
+      background: "#f3f6fb",
+      padding: 24,
       fontFamily:
         "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     }}
   >
+    {/* HEADER */}
     <div
       style={{
-        maxWidth: "1400px",
-        margin: "0 auto",
+        background: "#fff",
+        borderRadius: 24,
+        padding: 20,
+        marginBottom: 20,
+        border: "1px solid #e5e7eb",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-          gap: "15px",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            Face Recognition
-          </h1>
-
-          <p
-            style={{
-              color: "#888",
-              marginTop: 5,
-            }}
-          >
-            Employee Verification System
-          </p>
-        </div>
+      <div>
+        <h1
+          style={{
+            margin: 0,
+            color: "#111827",
+            fontSize: 32,
+            fontWeight: 700,
+          }}
+        >
+          Face Recognition
+        </h1>
 
         <div
           style={{
-            padding: "8px 16px",
-            border: "1px solid #222",
-            borderRadius: "999px",
-            background: "#0a0a0a",
+            color: "#64748b",
+            marginTop: 6,
           }}
         >
-          {loading ? "Loading..." : "System Ready"}
+          Employee Verification System
         </div>
       </div>
 
-      {/* Tabs */}
+      <div
+        style={{
+          padding: "10px 18px",
+          borderRadius: 999,
+          background: loading ? "#fef3c7" : "#dcfce7",
+          color: loading ? "#92400e" : "#166534",
+          fontWeight: 600,
+        }}
+      >
+        {loading ? "Loading..." : "System Ready"}
+      </div>
+    </div>
+
+    {/* MAIN */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "280px 1fr 280px",
+        gap: 20,
+        minHeight: "75vh",
+      }}
+    >
+      {/* LEFT PANEL */}
       <div
         style={{
           display: "flex",
-          gap: 8,
-          padding: 6,
-          background: "#111",
-          borderRadius: 14,
-          width: "fit-content",
-          border: "1px solid #222",
-          marginBottom: 20,
-        }}
-      >
-        {["register", "verify", "settings"].map(
-          (tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: "12px 24px",
-                borderRadius: 10,
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 600,
-                background:
-                  activeTab === tab
-                    ? "#fff"
-                    : "transparent",
-                color:
-                  activeTab === tab
-                    ? "#000"
-                    : "#888",
-              }}
-            >
-              {tab.toUpperCase()}
-            </button>
-          )
-        )}
-      </div>
-
-      {/* Stats */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(220px,1fr))",
+          flexDirection: "column",
           gap: 16,
-          marginBottom: 20,
         }}
       >
         <div
           style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
+            background: "#fff",
             borderRadius: 20,
-            padding: 24,
+            padding: 20,
+            border: "1px solid #e5e7eb",
           }}
         >
-          <p style={{ color: "#888" }}>
+          <div
+            style={{
+              color: "#64748b",
+              fontSize: 14,
+            }}
+          >
             Registered Faces
-          </p>
-          <h1>{faceCount}</h1>
+          </div>
+
+          <div
+            style={{
+              color: "#111827",
+              fontSize: 42,
+              fontWeight: 700,
+              marginTop: 10,
+            }}
+          >
+            {faceCount}
+          </div>
         </div>
 
         <div
           style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
+            background: "#fff",
             borderRadius: 20,
-            padding: 24,
+            padding: 20,
+            border: "1px solid #e5e7eb",
           }}
         >
-          <p style={{ color: "#888" }}>
+          <div
+            style={{
+              color: "#64748b",
+            }}
+          >
             Verification
-          </p>
-          <h2>
+          </div>
+
+          <div
+            style={{
+              marginTop: 10,
+              fontWeight: 700,
+              color: isVerifying
+                ? "#16a34a"
+                : "#ef4444",
+            }}
+          >
             {isVerifying
               ? "ACTIVE"
               : "STOPPED"}
-          </h2>
+          </div>
         </div>
 
         <div
           style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
+            background: "#fff",
             borderRadius: 20,
-            padding: 24,
+            padding: 20,
+            border: "1px solid #e5e7eb",
           }}
         >
-          <p style={{ color: "#888" }}>
+          <div
+            style={{
+              color: "#64748b",
+            }}
+          >
             Face Status
-          </p>
-          <h2>
+          </div>
+
+          <div
+            style={{
+              marginTop: 10,
+              fontWeight: 700,
+              color: "#111827",
+            }}
+          >
             {multipleFaces
               ? "MULTIPLE"
               : "SINGLE"}
-          </h2>
+          </div>
         </div>
       </div>
 
-      {/* Camera */}
+      {/* CENTER CAMERA */}
       <div
         style={{
-          background: "#0a0a0a",
-          border: "1px solid #222",
-          borderRadius: 24,
+          background: "#fff",
+          borderRadius: 30,
           overflow: "hidden",
-          marginBottom: 20,
+          border: "1px solid #e5e7eb",
           position: "relative",
         }}
       >
         <video
           ref={videoRef}
-            autoPlay
-  muted
-  playsInline
-  style={{
-    width: "100%",
-    display: "block",
-    transform: "scaleX(-1)",
-  }}
+          autoPlay
+          muted
+          playsInline
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: "scaleX(-1)",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform:
+              "translate(-50%, -50%)",
+            width: 280,
+            height: 340,
+            borderRadius: "50%",
+            border: "4px solid #2563eb",
+            boxShadow:
+              "0 0 0 9999px rgba(255,255,255,.35)",
+          }}
         />
 
         {multipleFaces && (
@@ -533,11 +552,12 @@ return (
               position: "absolute",
               inset: 0,
               background:
-                "rgba(0,0,0,.85)",
+                "rgba(255,255,255,.92)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              fontSize: "32px",
+              color: "#dc2626",
+              fontSize: 32,
               fontWeight: 700,
             }}
           >
@@ -546,155 +566,187 @@ return (
         )}
       </div>
 
-      {/* Register */}
-      {activeTab === "register" && (
-        <div
-          style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
-            borderRadius: 20,
-            padding: 24,
-          }}
-        >
-          <h2>Register Employee</h2>
-
-          <input
-            type="text"
-            value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-            placeholder="Enter Employee ID"
-            style={{
-              width: "100%",
-              background: "#000",
-              border: "1px solid #222",
-              color: "#fff",
-              padding: 16,
-              borderRadius: 14,
-              marginTop: 15,
-              marginBottom: 20,
-              outline: "none",
-              fontSize: 16,
-            }}
-          />
-
-          <button
-            onClick={registerFace}
-            style={{
-              background: "#fff",
-              color: "#000",
-              border: "none",
-              borderRadius: 14,
-              padding: "14px 24px",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Register Face
-          </button>
-        </div>
-      )}
-
-      {/* Verify */}
-      {activeTab === "verify" && (
-        <div
-          style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
-            borderRadius: 20,
-            padding: 24,
-          }}
-        >
-          {!isVerifying ? (
-            <button
-              onClick={startVerification}
-              style={{
-                background: "#fff",
-                color: "#000",
-                border: "none",
-                borderRadius: 14,
-                padding: "14px 24px",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Start Verification
-            </button>
-          ) : (
-            <button
-              onClick={stopVerification}
-              style={{
-                background: "#fff",
-                color: "#000",
-                border: "none",
-                borderRadius: 14,
-                padding: "14px 24px",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Stop Verification
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Settings */}
-      {activeTab === "settings" && (
-        <div
-          style={{
-            background: "#0a0a0a",
-            border: "1px solid #222",
-            borderRadius: 20,
-            padding: 24,
-          }}
-        >
-          <button
-            onClick={clearRegisteredFaces}
-            style={{
-              background: "#fff",
-              color: "#000",
-              border: "none",
-              borderRadius: 14,
-              padding: "14px 24px",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Clear All Faces
-          </button>
-        </div>
-      )}
-
-      {/* Status Panel */}
+      {/* RIGHT PANEL */}
       <div
         style={{
-          marginTop: 20,
-          background: "#0a0a0a",
-          border: "1px solid #222",
-          borderRadius: 20,
-          padding: 20,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        {/* TABS */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 20,
+            padding: 12,
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          {["register", "verify", "settings"].map(
+            (tab) => (
+              <button
+                key={tab}
+                onClick={() =>
+                  setActiveTab(tab)
+                }
+                style={{
+                  width: "100%",
+                  marginBottom: 8,
+                  padding: 14,
+                  borderRadius: 12,
+                  border: "none",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  background:
+                    activeTab === tab
+                      ? "#2563eb"
+                      : "#f1f5f9",
+                  color:
+                    activeTab === tab
+                      ? "#fff"
+                      : "#111827",
+                }}
+              >
+                {tab.toUpperCase()}
+              </button>
+            )
+          )}
+        </div>
+
+        {activeTab === "register" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 20,
+              padding: 20,
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <input
+              type="text"
+              value={name}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
+              placeholder="Employee ID"
+              style={{
+                width: "100%",
+                padding: 14,
+                borderRadius: 12,
+                border:
+                  "1px solid #d1d5db",
+                marginBottom: 14,
+              }}
+            />
+
+            <button
+              onClick={registerFace}
+              style={{
+                width: "100%",
+                padding: 14,
+                borderRadius: 12,
+                border: "none",
+                background: "#2563eb",
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              Register Face
+            </button>
+          </div>
+        )}
+
+        {activeTab === "verify" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 20,
+              padding: 20,
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <button
+              onClick={
+                isVerifying
+                  ? stopVerification
+                  : startVerification
+              }
+              style={{
+                width: "100%",
+                padding: 14,
+                borderRadius: 12,
+                border: "none",
+                background: isVerifying
+                  ? "#ef4444"
+                  : "#16a34a",
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              {isVerifying
+                ? "Stop Verification"
+                : "Start Verification"}
+            </button>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 20,
+              padding: 20,
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <button
+              onClick={clearRegisteredFaces}
+              style={{
+                width: "100%",
+                padding: 14,
+                borderRadius: 12,
+                border: "none",
+                background: "#dc2626",
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              Clear Faces
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* STATUS */}
+    <div
+      style={{
+        marginTop: 20,
+        background: "#fff",
+        borderRadius: 20,
+        padding: 20,
+        border: "1px solid #e5e7eb",
+      }}
+    >
+      <div
+        style={{
+          color: "#64748b",
+          marginBottom: 10,
+        }}
+      >
+        STATUS
+      </div>
+
+      <div
+        style={{
+          color: "#111827",
+          fontSize: 18,
+          fontWeight: 600,
           whiteSpace: "pre-line",
         }}
       >
-        <div
-          style={{
-            color: "#888",
-            marginBottom: 10,
-          }}
-        >
-          STATUS
-        </div>
-
-        <div
-          style={{
-            fontSize: 18,
-            fontWeight: 600,
-          }}
-        >
-          {message}
-        </div>
+        {message}
       </div>
     </div>
   </div>
