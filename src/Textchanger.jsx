@@ -872,21 +872,14 @@ return (
 
     {/* VIGNETTE */}
     <div
-  style={{
-    position: "absolute",
-    inset: 0,
-    background: `
-      radial-gradient(
-        ellipse at center,
-        rgba(0,0,0,0) 18%,
-        rgba(0,0,0,0.15) 38%,
-        rgba(0,0,0,0.45) 65%,
-        rgba(0,0,0,0.78) 100%
-      )
-    `,
-    zIndex: 1,
-  }}
-/>
+      style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "radial-gradient(ellipse at center, transparent 220px, rgba(0, 0, 0, 0.23) 400px, rgba(40, 38, 38, 0.7) 90%)",
+        zIndex: 1,
+      }}
+    />
 
     {/* TOP BAR */}
     <div
