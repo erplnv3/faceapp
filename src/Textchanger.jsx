@@ -512,6 +512,7 @@ return (
     gridTemplateColumns: "260px 1fr 260px",
     gap: 20,
     minHeight: 0,
+    height: "calc(100vh - 120px)", // adjust as needed
   }}
 >
   {/* LEFT PANEL */}
