@@ -876,7 +876,7 @@ return (
         position: "absolute",
         inset: 0,
         background:
-          "radial-gradient(ellipse at center, transparent 220px, rgba(0, 0, 0, 0.19) 400px, rgb(40, 38, 38) 100%)",
+          "radial-gradient(ellipse at center, transparent 220px, rgba(0, 0, 0, 0.46) 400px, rgba(40, 38, 38, 0.31) 100%)",
         zIndex: 1,
       }}
     />
