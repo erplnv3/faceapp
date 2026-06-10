@@ -33,7 +33,7 @@ useEffect(() => {
       JSON.stringify(converted)
     );
 
-    alert(`Received ${converted.length} faces from mobile app`);
+    // alert(`Received ${converted.length} faces from mobile app`);
 
     setMessage(
       `✅ RECEIVED ${converted.length} FACES FROM MOBILE`
@@ -78,6 +78,10 @@ console.log(
 
       setLoading(false);
       setMessage("✅ Models Loaded");
+
+setTimeout(() => {
+  startVerification();
+}, 1000);
     } catch (error) {
       console.error(error);
       setMessage("❌ Failed to load models or camera");
