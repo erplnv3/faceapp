@@ -1080,20 +1080,20 @@ return (
                     fontWeight: 700,
                   }}
                 >
-                  {employee?.name?.[0] || "E"}
+                  {attendanceDetails?.firstname?.[0] || "E"}
                 </div>
               )}
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                {employee?.name || "Employee"}
+                {attendanceDetails?.firstname+"."+attendanceDetails?.lastname || "Employee"}
               </div>
               <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
-                {employeeCode || "Code unavailable"}
+                {emplattendanceDetails?.username || "Code unavailable"}
               </div>
             </div>
           </div>
-          <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
+          {/* <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
             <div>
               <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 6 }}>
                 Department
@@ -1106,7 +1106,7 @@ return (
               </div>
               <div style={{ fontSize: 15, fontWeight: 600 }}>{employeeDesignation || "Unknown"}</div>
             </div>
-          </div>
+          </div> */}
           {attendanceMessage && (
             <div
               style={{
