@@ -9,6 +9,8 @@ import * as faceapi from "face-api.js";
   const [isVerifying, setIsVerifying] = useState(false);
   const [name, setName] = useState("");
   const [employee, setEmployee] = useState(null);
+  const [attendanceStatus, setAttendanceStatus] = useState(null);
+  const [attendanceRecord, setAttendanceRecord] = useState(null);
   const [attendanceResult, setAttendanceResult] = useState(null);
   const [multipleFaces, setMultipleFaces] = useState(false);
   const lastMatchedRef = useRef(null);
@@ -68,11 +70,25 @@ useEffect(() => {
   };
 
   const handleEmployeeMatched = (event) => {
-    const employeeData = parseEventDetail(event.detail);
-    if (!employeeData) return;
-    setEmployee(employeeData);
+    const payload = parseEventDetail(event.detail);
+    if (!payload) return;
+
+    // payload expected shape: { employee: {...}, attendanceStatus: 'PUNCH_IN'|'PUNCH_OUT'|'COMPLETED', attendanceRecord: {...} }
+    const emp = payload.employee || payload;
+    setEmployee(emp);
+    setAttendanceStatus(payload.attendanceStatus || null);
+    setAttendanceRecord(payload.attendanceRecord || null);
     setAttendanceResult(null);
-    setMessage("Employee matched. Please select Punch In or Punch Out.");
+
+    if (payload.attendanceStatus === "COMPLETED") {
+      setMessage("Attendance Already Marked Today");
+    } else if (payload.attendanceStatus === "PUNCH_IN") {
+      setMessage("Employee matched — ready to Punch In");
+    } else if (payload.attendanceStatus === "PUNCH_OUT") {
+      setMessage("Employee matched — ready to Punch Out");
+    } else {
+      setMessage("Employee matched. Please select Punch In or Punch Out.");
+    }
   };
 
   const handleAttendanceResult = (event) => {
@@ -80,6 +96,16 @@ useEffect(() => {
     if (!resultData) return;
     setAttendanceResult(resultData);
     setMessage(resultData.message || "Attendance update received.");
+
+    // If attendance was successful, clear the employee card after short delay
+    if (resultData.success) {
+      // native may also dispatch employeeMatched with COMPLETED; still clear locally
+      setTimeout(() => {
+        setEmployee(null);
+        setAttendanceStatus(null);
+        setAttendanceRecord(null);
+      }, 1400);
+    }
   };
 
   window.addEventListener("employeeMatched", handleEmployeeMatched);
@@ -95,6 +121,8 @@ useEffect(() => {
   if (attendanceResult?.success) {
     const timeout = setTimeout(() => {
       setEmployee(null);
+      setAttendanceStatus(null);
+      setAttendanceRecord(null);
       setAttendanceResult(null);
       setMessage("");
     }, 2500);
@@ -306,12 +334,12 @@ const getDescriptorFromVideo = async () => {
       return;
     }
 
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({
-        type: action,
-        employee,
-      })
-    );
+    const payload = {
+      type: action,
+      employeeId: employee.id || employee.employeeId || employee.empId || employeeCode || null,
+    };
+
+    window.ReactNativeWebView.postMessage(JSON.stringify(payload));
 
     setMessage(`Sending ${action.replace("_", " ")} request...`);
   };
@@ -1060,38 +1088,97 @@ return (
             </div>
           )}
           <div style={{ display: "grid", gap: 14 }}>
-            <button
-              onClick={() => sendPunchAction("PUNCH_IN")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                borderRadius: 16,
-                border: "none",
-                background: "linear-gradient(135deg, #22c55e, #4ade80)",
-                color: "#071c0a",
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Punch In
-            </button>
-            <button
-              onClick={() => sendPunchAction("PUNCH_OUT")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.08)",
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Punch Out
-            </button>
+            {attendanceStatus === "PUNCH_IN" && (
+              <button
+                onClick={() => sendPunchAction("PUNCH_IN")}
+                style={{
+                  width: "100%",
+                  padding: "18px 20px",
+                  borderRadius: 16,
+                  border: "none",
+                  background: "linear-gradient(135deg, #22c55e, #4ade80)",
+                  color: "#071c0a",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Punch In
+              </button>
+            )}
+
+            {attendanceStatus === "PUNCH_OUT" && (
+              <button
+                onClick={() => sendPunchAction("PUNCH_OUT")}
+                style={{
+                  width: "100%",
+                  padding: "18px 20px",
+                  borderRadius: 16,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(255,255,255,0.08)",
+                  color: "#fff",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Punch Out
+              </button>
+            )}
+
+            {attendanceStatus === "COMPLETED" && (
+              <div
+                style={{
+                  padding: "14px 18px",
+                  borderRadius: 12,
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontWeight: 600,
+                }}
+              >
+                Attendance Already Marked Today
+              </div>
+            )}
+
+            {/* fallback: if attendanceStatus is not provided, show both actions */}
+            {!attendanceStatus && (
+              <>
+                <button
+                  onClick={() => sendPunchAction("PUNCH_IN")}
+                  style={{
+                    width: "100%",
+                    padding: "18px 20px",
+                    borderRadius: 16,
+                    border: "none",
+                    background: "linear-gradient(135deg, #22c55e, #4ade80)",
+                    color: "#071c0a",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  Punch In
+                </button>
+                <button
+                  onClick={() => sendPunchAction("PUNCH_OUT")}
+                  style={{
+                    width: "100%",
+                    padding: "18px 20px",
+                    borderRadius: 16,
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: "rgba(255,255,255,0.08)",
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  Punch Out
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
