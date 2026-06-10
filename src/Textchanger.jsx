@@ -185,7 +185,7 @@ const getDescriptorFromVideo = async () => {
   );
 
   if (distanceFromCenter > guideRadius) {
-    setMessage("⚠️ Place face inside guide");
+    setMessage("Place face inside guide");
     return null;
   }
 
@@ -285,7 +285,7 @@ const getDescriptorFromVideo = async () => {
   }
 
   setIsVerifying(true);
-  setMessage("🔍 Verification Started");
+  setMessage("Verification Started");
 
   verificationInterval.current = setInterval(async () => {
     try {
@@ -293,7 +293,7 @@ const getDescriptorFromVideo = async () => {
         JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
       if (registeredFaces.length === 0) {
-        setMessage(" No Faces Loaded");
+        setMessage("No Faces Loaded");
         return;
       }
 
@@ -301,13 +301,13 @@ const getDescriptorFromVideo = async () => {
 
       if (faces.length === 0) {
         setMultipleFaces(false);
-        setMessage("⚠️ No Face Detected");
+        setMessage("No Face Detected");
         return;
       }
 
       if (faces.length > 1) {
         setMultipleFaces(true);
-        setMessage(" Multiple Faces Detected\nOnly one face at a time");
+        setMessage("Multiple Faces Detected\nOnly one face at a time");
         return;
       }
 
@@ -316,7 +316,7 @@ const getDescriptorFromVideo = async () => {
       const descriptor = await getDescriptorFromVideo();
 
       if (!descriptor) {
-        setMessage("⚠️ No Face Detected");
+        setMessage("No Face Detected");
         return;
       }
 
@@ -749,7 +749,7 @@ Distance: ${bestDistance.toFixed(4)}`
 //               fontWeight: 700,
 //             }}
 //           >
-//             ⚠️
+//             
 //           </div>
 
 //           <div
