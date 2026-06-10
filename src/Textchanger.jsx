@@ -77,7 +77,7 @@ useEffect(() => {
     // payload expected shape: { employee: {...}, attendanceStatus: 'PUNCH_IN'|'PUNCH_OUT'|'COMPLETED', attendanceRecord: {...} }
     const emp = payload.employee || payload;
     setEmployee(emp);
-    setAttendanceDetails(payload.employeeDetails)
+    setAttendanceDetails(payload.employee)
     setAttendanceStatus(payload.attendanceStatus || null);
     setAttendanceRecord(payload.attendanceRecord || null);
     setAttendanceResult(null);
