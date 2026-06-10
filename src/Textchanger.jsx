@@ -338,32 +338,226 @@ Distance: ${bestDistance.toFixed(4)}`
   };
 
   
-return (
+// return (
+//   <div
+//     style={{
+//       textAlign: "center",
+//       padding: "20px",
+//       fontFamily: "Arial",
+//       width: "100%",
+//       boxSizing: "border-box",
+//     }}
+//   >
+//     <h1
+//       style={{
+//         fontSize: "clamp(24px, 4vw, 40px)",
+//         marginBottom: 20,
+//       }}
+//     >
+//       Live Face Recognition
+//     </h1>
+
+//     {loading && <h3>Loading Models...</h3>}
+
+//     <div
+//       style={{
+//         position: "relative",
+//         display: "inline-block",
+//         width: "90%",
+//         maxWidth: "900px",
+//       }}
+//     >
+//       <video
+//         ref={videoRef}
+//         autoPlay
+//         muted
+//         playsInline
+//         style={{
+//           width: "100%",
+//           height: "auto",
+//           border: "2px solid black",
+//           borderRadius: 10,
+//           display: "block",
+//           //  display: "block",
+//     transform: "scaleX(-1)",
+//         }}
+//       />
+
+//       {multipleFaces && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             top: 0,
+//             left: 0,
+//             width: "100%",
+//             height: "100%",
+//             background: "rgba(255, 0, 0, 0.55)",
+//             color: "#fff",
+//             display: "flex",
+//             alignItems: "center",
+//             justifyContent: "center",
+//             fontSize: "clamp(24px, 2vw, 32px)",
+//             fontWeight: "bold",
+//             borderRadius: 10,
+//             textAlign: "center",
+//             padding: "20px",
+//             boxSizing: "border-box",
+//           }}
+//         >
+//           One Face At A Time
+//         </div>
+//       )}
+//     </div>
+
+//     <br />
+//     <br />
+
+//     <input
+//       type="text"
+//       placeholder="Enter Name"
+//       value={name}
+//       onChange={(e) => setName(e.target.value)}
+//       style={{
+//         padding: "12px",
+//         width: "90%",
+//         maxWidth: "400px",
+//         fontSize: "18px",
+//         marginBottom: "15px",
+//         borderRadius: "8px",
+//         boxSizing: "border-box",
+//       }}
+//     />
+
+//     <br />
+
+//     <div
+//       style={{
+//         display: "flex",
+//         flexWrap: "wrap",
+//         justifyContent: "center",
+//         gap: "10px",
+//       }}
+//     >
+//       <button
+//         onClick={registerFace}
+//         style={{
+//           padding: "14px 24px",
+//           minWidth: "180px",
+//           fontSize: "16px",
+//           cursor: "pointer",
+//         }}
+//       >
+//         Register Face
+//       </button>
+
+//       {!isVerifying ? (
+//         <button
+//           onClick={startVerification}
+//           style={{
+//             padding: "14px 24px",
+//             minWidth: "180px",
+//             fontSize: "16px",
+//             cursor: "pointer",
+//           }}
+//         >
+//           Start Verification
+//         </button>
+//       ) : (
+//         <button
+//           onClick={stopVerification}
+//           style={{
+//             padding: "14px 24px",
+//             minWidth: "180px",
+//             fontSize: "16px",
+//             cursor: "pointer",
+//           }}
+//         >
+//           Stop Verification
+//         </button>
+//       )}
+
+//       <button
+//         onClick={clearRegisteredFaces}
+//         style={{
+//           padding: "14px 24px",
+//           minWidth: "180px",
+//           fontSize: "16px",
+//           cursor: "pointer",
+//         }}
+//       >
+//         Clear Faces
+//       </button>
+//     </div>
+
+//     <div
+//       style={{
+//         marginTop: 20,
+//         whiteSpace: "pre-line",
+//         fontSize: "clamp(18px, 2vw, 24px)",
+//         fontWeight: "bold",
+//         padding: "0 10px",
+//       }}
+//     >
+//       {message}
+//     </div>
+//   </div>
+// );
+ return (
   <div
     style={{
-      textAlign: "center",
-      padding: "20px",
-      fontFamily: "Arial",
-      width: "100%",
+      height: "100vh",
+      background: "#000",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
       boxSizing: "border-box",
+      overflow: "hidden",
     }}
   >
-    <h1
+    <div
       style={{
-        fontSize: "clamp(24px, 4vw, 40px)",
-        marginBottom: 20,
+        display: "flex",
+        gap: 10,
+        marginBottom: 15,
+        flexWrap: "wrap",
+        justifyContent: "center",
       }}
     >
-      Live Face Recognition
-    </h1>
+      <div
+        style={{
+          background: loading ? "#444" : "#1f8f4d",
+          color: "#fff",
+          padding: "8px 16px",
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
+        {loading ? "Loading Models..." : "Models Loaded"}
+      </div>
 
-    {loading && <h3>Loading Models...</h3>}
+      <div
+        style={{
+          background: isVerifying ? "#2563eb" : "#444",
+          color: "#fff",
+          padding: "8px 16px",
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
+        {isVerifying
+          ? "Verification Active"
+          : "Starting Verification"}
+      </div>
+    </div>
 
     <div
       style={{
         position: "relative",
-        display: "inline-block",
-        width: "90%",
+        width: "100%",
         maxWidth: "900px",
       }}
     >
@@ -374,12 +568,9 @@ return (
         playsInline
         style={{
           width: "100%",
-          height: "auto",
-          border: "2px solid black",
-          borderRadius: 10,
+          borderRadius: 20,
+          transform: "scaleX(-1)",
           display: "block",
-          //  display: "block",
-    transform: "scaleX(-1)",
         }}
       />
 
@@ -387,122 +578,36 @@ return (
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(255, 0, 0, 0.55)",
+            inset: 0,
+            background: "rgba(255,0,0,.75)",
             color: "#fff",
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
-            fontSize: "clamp(24px, 2vw, 32px)",
-            fontWeight: "bold",
-            borderRadius: 10,
-            textAlign: "center",
-            padding: "20px",
-            boxSizing: "border-box",
+            alignItems: "center",
+            fontSize: 32,
+            fontWeight: 700,
+            borderRadius: 20,
           }}
         >
-          One Face At A Time
+          ONE FACE AT A TIME
         </div>
       )}
     </div>
 
-    <br />
-    <br />
-
-    <input
-      type="text"
-      placeholder="Enter Name"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      style={{
-        padding: "12px",
-        width: "90%",
-        maxWidth: "400px",
-        fontSize: "18px",
-        marginBottom: "15px",
-        borderRadius: "8px",
-        boxSizing: "border-box",
-      }}
-    />
-
-    <br />
-
     <div
       style={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "10px",
-      }}
-    >
-      <button
-        onClick={registerFace}
-        style={{
-          padding: "14px 24px",
-          minWidth: "180px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Register Face
-      </button>
-
-      {!isVerifying ? (
-        <button
-          onClick={startVerification}
-          style={{
-            padding: "14px 24px",
-            minWidth: "180px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          Start Verification
-        </button>
-      ) : (
-        <button
-          onClick={stopVerification}
-          style={{
-            padding: "14px 24px",
-            minWidth: "180px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          Stop Verification
-        </button>
-      )}
-
-      <button
-        onClick={clearRegisteredFaces}
-        style={{
-          padding: "14px 24px",
-          minWidth: "180px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Clear Faces
-      </button>
-    </div>
-
-    <div
-      style={{
-        marginTop: 20,
+        marginTop: 15,
+        color: "#fff",
+        fontSize: 18,
+        fontWeight: 600,
+        textAlign: "center",
         whiteSpace: "pre-line",
-        fontSize: "clamp(18px, 2vw, 24px)",
-        fontWeight: "bold",
-        padding: "0 10px",
       }}
     >
       {message}
     </div>
   </div>
 );
- 
 
 }
 
