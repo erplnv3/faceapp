@@ -12,6 +12,7 @@ function App() {
         style={{
           position: "fixed",
           top: 20,
+          display:'none',
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 9999,
@@ -25,6 +26,7 @@ function App() {
         <button
           onClick={() => setActiveTab("login")}
           style={{
+
             border: "none",
             padding: "12px 24px",
             borderRadius: "12px",
