@@ -1,27 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
-
-/**
- * GUIDE CONFIGURATION
- * Single source of truth for face guide dimensions.
- * Used by both UI rendering and face detection validation.
- */
-const GUIDE_CONFIG = {
-  widthPx: 240,      // Visual guide width in pixels
-  heightPx: 300,     // Visual guide height in pixels
-};
-
-/**
- * Calculate the effective radius for face position validation.
- * Uses the smaller dimension of the guide to ensure face must be within visible boundaries.
- * @returns {number} Radius in pixels for circular validation area
- */
-const calculateGuideRadius = () => {
-  // Use smaller dimension as diameter for circular validation
-  return Math.min(GUIDE_CONFIG.widthPx, GUIDE_CONFIG.heightPx) / 2;
-};
-
-function Textchanger() {
+ function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
 
@@ -118,248 +97,260 @@ setTimeout(() => {
     );
   };
 
-  /**
-   * Validate face position relative to the visual guide.
-   * Returns an object with status and descriptor (if valid).
-   * 
-   * Returns:
-   * - { status: 'no-face', descriptor: null }          // No face detected
-   * - { status: 'outside-guide', descriptor: null }    // Face detected but outside guide area
-   * - { status: 'valid', descriptor: Float32Array }    // Face inside guide, ready for matching
-   * - null (on error)
-   */
-  const validateFacePosition = async () => {
-    if (!videoRef.current) return null;
+  // const getDescriptorFromVideo = async () => {
+  //   if (!videoRef.current) return null;
 
-    try {
-      // Detect a single face with landmarks and descriptor
-      const detection = await faceapi
-        .detectSingleFace(
-          videoRef.current,
-          new faceapi.TinyFaceDetectorOptions()
-        )
-        .withFaceLandmarks()
-        .withFaceDescriptor();
+  //   const detection = await faceapi
+  //     .detectSingleFace(
+  //       videoRef.current,
+  //       new faceapi.TinyFaceDetectorOptions()
+  //     )
+  //     .withFaceLandmarks()
+  //     .withFaceDescriptor();
 
-      // No face found
-      if (!detection) {
-        return { status: 'no-face', descriptor: null };
-      }
+  //   if (!detection) return null;
 
-      // Get face bounding box and calculate center
-      const box = detection.detection.box;
-      const faceCenterX = box.x + box.width / 2;
-      const faceCenterY = box.y + box.height / 2;
+  //   return detection.descriptor;
+  // };
+const getDescriptorFromVideo = async () => {
+  if (!videoRef.current) return null;
 
-      // Get video dimensions and calculate guide center
-      const videoWidth = videoRef.current.videoWidth;
-      const videoHeight = videoRef.current.videoHeight;
-      const guideCenterX = videoWidth / 2;
-      const guideCenterY = videoHeight / 2;
+  const detection = await faceapi
+    .detectSingleFace(
+      videoRef.current,
+      new faceapi.TinyFaceDetectorOptions()
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptor();
 
-      // Calculate distance from face center to guide center
-      const guideRadius = calculateGuideRadius();
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(faceCenterX - guideCenterX, 2) +
-          Math.pow(faceCenterY - guideCenterY, 2)
-      );
+  if (!detection) return null;
 
-      // Check if face is outside guide
-      if (distanceFromCenter > guideRadius) {
-        return { status: 'outside-guide', descriptor: null };
-      }
+  const box = detection.detection.box;
 
-      // Face is inside guide and valid for matching
-      return { status: 'valid', descriptor: detection.descriptor };
-    } catch (error) {
-      console.error('Error in validateFacePosition:', error);
-      return null;
-    }
-  };
+  const faceCenterX = box.x + box.width / 2;
+  const faceCenterY = box.y + box.height / 2;
 
-  /**
-   * DEPRECATED: Use validateFacePosition() instead.
-   * Kept for backward compatibility if needed elsewhere.
-   */
-  const getDescriptorFromVideo = async () => {
-    const validation = await validateFacePosition();
-    if (!validation) return null;
-    if (validation.status === 'valid') {
-      return validation.descriptor;
-    }
+  const videoWidth = videoRef.current.videoWidth;
+  const videoHeight = videoRef.current.videoHeight;
+
+  const guideCenterX = videoWidth / 2;
+  const guideCenterY = videoHeight / 2;
+
+  const guideRadius = 180;
+
+  const distanceFromCenter = Math.sqrt(
+    Math.pow(faceCenterX - guideCenterX, 2) +
+      Math.pow(faceCenterY - guideCenterY, 2)
+  );
+
+  if (distanceFromCenter > guideRadius) {
+    setMessage("⚠️ Place face inside guide");
     return null;
-  };
+  }
+
+  return detection.descriptor;
+};
   const registerFace = async () => {
+  try {
+    if (!name.trim()) {
+      setMessage("❌ Enter Name First");
+      return;
+    }
+
+    setMessage("Registering Face...");
+
+    const descriptor = await getDescriptorFromVideo();
+
+    if (!descriptor) {
+      setMessage("❌ No Face Detected");
+      return;
+    }
+
+    const faceData = {
+      name: name.trim(),
+      descriptor: Array.from(descriptor),
+      registeredAt: new Date().toISOString(),
+    };
+
+    const registeredFaces =
+      JSON.parse(localStorage.getItem("registeredFaces")) || [];
+
+    registeredFaces.push(faceData);
+
+    localStorage.setItem(
+      "registeredFaces",
+      JSON.stringify(registeredFaces)
+    );
+
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "FACE_REGISTERED",
+          data: faceData,
+        })
+      );
+    }
+
+    setMessage(
+      `✅ ${name} Registered & Sent To Mobile`
+    );
+
+    setName("");
+  } catch (error) {
+    console.log(error);
+    setMessage("❌ Registration Failed");
+  }
+};
+  // const registerFace = async () => {
+  //   try {
+  //     if (!name.trim()) {
+  //       setMessage("❌ Enter Name First");
+  //       return;
+  //     }
+
+  //     setMessage("Registering Face...");
+
+  //     const descriptor = await getDescriptorFromVideo();
+
+  //     if (!descriptor) {
+  //       setMessage("❌ No Face Detected");
+  //       return;
+  //     }
+
+  //     const registeredFaces =
+  //       JSON.parse(localStorage.getItem("registeredFaces")) || [];
+
+  //     registeredFaces.push({
+  //       name: name.trim(),
+  //       descriptor: Array.from(descriptor),
+  //     });
+
+  //     localStorage.setItem(
+  //       "registeredFaces",
+  //       JSON.stringify(registeredFaces)
+  //     );
+
+  //     setMessage(`✅ ${name} Registered Successfully`);
+  //     setName("");
+  //   } catch (error) {
+  //     console.log(error);
+  //     setMessage("❌ Registration Failed");
+  //   }
+  // };
+
+  const startVerification = async () => {
+  if (verificationInterval.current) {
+    clearInterval(verificationInterval.current);
+  }
+
+  setIsVerifying(true);
+  setMessage("🔍 Verification Started");
+
+  verificationInterval.current = setInterval(async () => {
     try {
-      if (!name.trim()) {
-        setMessage("❌ Enter Name First");
-        return;
-      }
-
-      setMessage("Registering Face...");
-
-      // Validate face position first
-      const validation = await validateFacePosition();
-
-      if (!validation) {
-        setMessage("❌ Error detecting face. Try again.");
-        return;
-      }
-
-      if (validation.status === 'no-face') {
-        setMessage("❌ No Face Detected");
-        return;
-      }
-
-      if (validation.status === 'outside-guide') {
-        setMessage("❌ Place face inside guide to register");
-        return;
-      }
-
-      const descriptor = validation.descriptor;
-
-      const faceData = {
-        name: name.trim(),
-        descriptor: Array.from(descriptor),
-        registeredAt: new Date().toISOString(),
-      };
-
       const registeredFaces =
         JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
-      registeredFaces.push(faceData);
-
-      localStorage.setItem(
-        "registeredFaces",
-        JSON.stringify(registeredFaces)
-      );
-
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({
-            type: "FACE_REGISTERED",
-            data: faceData,
-          })
-        );
+      if (registeredFaces.length === 0) {
+        setMessage("❌ No Faces Loaded");
+        return;
       }
 
-      setMessage(
-        `✅ ${name} Registered & Sent To Mobile`
-      );
+      const faces = await getFaceDetections();
 
-      setName("");
-    } catch (error) {
-      console.log(error);
-      setMessage("❌ Registration Failed");
-    }
-  };
-
-  const startVerification = async () => {
-    if (verificationInterval.current) {
-      clearInterval(verificationInterval.current);
-    }
-
-    setIsVerifying(true);
-    setMessage("🔍 Verification Started");
-
-    verificationInterval.current = setInterval(async () => {
-      try {
-        const registeredFaces =
-          JSON.parse(localStorage.getItem("registeredFaces")) || [];
-
-        if (registeredFaces.length === 0) {
-          setMessage("❌ No Faces Loaded");
-          return;
-        }
-
-        // STEP 1: Check how many faces are visible in frame
-        const detectedFaces = await getFaceDetections();
-
-        if (detectedFaces.length === 0) {
-          // No faces in frame
-          setMultipleFaces(false);
-          setMessage("⚠️ No Face Detected");
-          return;
-        }
-
-        if (detectedFaces.length > 1) {
-          // Multiple faces in frame - stop processing
-          setMultipleFaces(true);
-          setMessage("❌ Multiple Faces Detected\nOnly one face at a time");
-          return;
-        }
-
-        // Single face detected
+      if (faces.length === 0) {
         setMultipleFaces(false);
+        setMessage("⚠️ No Face Detected");
+        return;
+      }
 
-        // STEP 2: Validate the detected face position relative to guide
-        const validation = await validateFacePosition();
+      if (faces.length > 1) {
+        setMultipleFaces(true);
+        setMessage("❌ Multiple Faces Detected\nOnly one face at a time");
+        return;
+      }
 
-        if (!validation) {
-          // Error in validation
-          setMessage("⚠️ Unable to process face");
-          return;
+      setMultipleFaces(false);
+
+      const descriptor = await getDescriptorFromVideo();
+
+      if (!descriptor) {
+        setMessage("⚠️ No Face Detected");
+        return;
+      }
+
+      let bestMatch = null;
+      let bestDistance = 999;
+
+      for (const person of registeredFaces) {
+        const savedDescriptor = new Float32Array(
+          person.descriptor
+        );
+
+        const distance = faceapi.euclideanDistance(
+          descriptor,
+          savedDescriptor
+        );
+
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestMatch = person.name;
         }
+      }
 
-        if (validation.status === 'outside-guide') {
-          // Face detected but positioned outside the guide area
-          setMessage("⚠️ Place face inside guide");
-          return;
-        }
+//       if (bestDistance < 0.5) {
+//         setMessage(
+//           `🟢 MATCH
 
-        // STEP 3: Face is inside guide - proceed with matching
-        const descriptor = validation.descriptor;
+// Name: ${bestMatch}
 
-        let bestMatch = null;
-        let bestDistance = 999;
+// Distance: ${bestDistance.toFixed(4)}`
+//         );
+//         if (window.ReactNativeWebView) {
+//   window.ReactNativeWebView.postMessage(
+//     JSON.stringify({
+//       type: "FACE_MATCHED",
+//       employeeid: bestMatch,
+//       distance: bestDistance,
+//       timestamp: new Date().toISOString(),
+//     })
+//   );
+// }
+//       } 
+      
+      if (bestDistance < 0.5) {
 
-        for (const person of registeredFaces) {
-          const savedDescriptor = new Float32Array(
-            person.descriptor
-          );
+  if (lastMatchedRef.current !== bestMatch) {
 
-          const distance = faceapi.euclideanDistance(
-            descriptor,
-            savedDescriptor
-          );
+    lastMatchedRef.current = bestMatch;
 
-          if (distance < bestDistance) {
-            bestDistance = distance;
-            bestMatch = person.name;
-          }
-        }
+    window.ReactNativeWebView?.postMessage(
+      JSON.stringify({
+        type: "FACE_MATCHED",
+        employeeid: bestMatch,
+        distance: bestDistance,
+        timestamp: new Date().toISOString(),
+      })
+    );
+  }
 
-        // STEP 4: Check if match meets threshold
-        if (bestDistance < 0.5) {
-          // Match found - send to mobile if not already sent
-          if (lastMatchedRef.current !== bestMatch) {
-            lastMatchedRef.current = bestMatch;
-
-            window.ReactNativeWebView?.postMessage(
-              JSON.stringify({
-                type: "FACE_MATCHED",
-                employeeid: bestMatch,
-                distance: bestDistance,
-                timestamp: new Date().toISOString(),
-              })
-            );
-          }
-
-          setMessage(`🟢 MATCH
+  setMessage(`🟢 MATCH
 Name: ${bestMatch}
 Distance: ${bestDistance.toFixed(4)}`);
-        } else {
-          // Face inside guide but no match
-          setMessage(
-            `🔴 UNKNOWN PERSON
+}
+      
+      else {
+        setMessage(
+          `🔴 UNKNOWN PERSON
+
 Distance: ${bestDistance.toFixed(4)}`
-          );
-        }
-      } catch (error) {
-        console.error('Error in verification loop:', error);
+        );
       }
-    }, 1000);
-  };
+    } catch (error) {
+      console.log(error);
+    }
+  }, 1000);
+};
 
   const stopVerification = () => {
     if (verificationInterval.current) {
@@ -383,83 +374,505 @@ Distance: ${bestDistance.toFixed(4)}`
     setMessage("🗑 All Registered Faces Removed");
   };
 
-  return (
+  
+// return (
+//   <div
+//     style={{
+//       textAlign: "center",
+//       padding: "20px",
+//       fontFamily: "Arial",
+//       width: "100%",
+//       boxSizing: "border-box",
+//     }}
+//   >
+//     <h1
+//       style={{
+//         fontSize: "clamp(24px, 4vw, 40px)",
+//         marginBottom: 20,
+//       }}
+//     >
+//       Live Face Recognition
+//     </h1>
+
+//     {loading && <h3>Loading Models...</h3>}
+
+//     <div
+//       style={{
+//         position: "relative",
+//         display: "inline-block",
+//         width: "90%",
+//         maxWidth: "900px",
+//       }}
+//     >
+//       <video
+//         ref={videoRef}
+//         autoPlay
+//         muted
+//         playsInline
+//         style={{
+//           width: "100%",
+//           height: "auto",
+//           border: "2px solid black",
+//           borderRadius: 10,
+//           display: "block",
+//           //  display: "block",
+//     transform: "scaleX(-1)",
+//         }}
+//       />
+
+//       {multipleFaces && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             top: 0,
+//             left: 0,
+//             width: "100%",
+//             height: "100%",
+//             background: "rgba(255, 0, 0, 0.55)",
+//             color: "#fff",
+//             display: "flex",
+//             alignItems: "center",
+//             justifyContent: "center",
+//             fontSize: "clamp(24px, 2vw, 32px)",
+//             fontWeight: "bold",
+//             borderRadius: 10,
+//             textAlign: "center",
+//             padding: "20px",
+//             boxSizing: "border-box",
+//           }}
+//         >
+//           One Face At A Time
+//         </div>
+//       )}
+//     </div>
+
+//     <br />
+//     <br />
+
+//     <input
+//       type="text"
+//       placeholder="Enter Name"
+//       value={name}
+//       onChange={(e) => setName(e.target.value)}
+//       style={{
+//         padding: "12px",
+//         width: "90%",
+//         maxWidth: "400px",
+//         fontSize: "18px",
+//         marginBottom: "15px",
+//         borderRadius: "8px",
+//         boxSizing: "border-box",
+//       }}
+//     />
+
+//     <br />
+
+//     <div
+//       style={{
+//         display: "flex",
+//         flexWrap: "wrap",
+//         justifyContent: "center",
+//         gap: "10px",
+//       }}
+//     >
+//       <button
+//         onClick={registerFace}
+//         style={{
+//           padding: "14px 24px",
+//           minWidth: "180px",
+//           fontSize: "16px",
+//           cursor: "pointer",
+//         }}
+//       >
+//         Register Face
+//       </button>
+
+//       {!isVerifying ? (
+//         <button
+//           onClick={startVerification}
+//           style={{
+//             padding: "14px 24px",
+//             minWidth: "180px",
+//             fontSize: "16px",
+//             cursor: "pointer",
+//           }}
+//         >
+//           Start Verification
+//         </button>
+//       ) : (
+//         <button
+//           onClick={stopVerification}
+//           style={{
+//             padding: "14px 24px",
+//             minWidth: "180px",
+//             fontSize: "16px",
+//             cursor: "pointer",
+//           }}
+//         >
+//           Stop Verification
+//         </button>
+//       )}
+
+//       <button
+//         onClick={clearRegisteredFaces}
+//         style={{
+//           padding: "14px 24px",
+//           minWidth: "180px",
+//           fontSize: "16px",
+//           cursor: "pointer",
+//         }}
+//       >
+//         Clear Faces
+//       </button>
+//     </div>
+
+//     <div
+//       style={{
+//         marginTop: 20,
+//         whiteSpace: "pre-line",
+//         fontSize: "clamp(18px, 2vw, 24px)",
+//         fontWeight: "bold",
+//         padding: "0 10px",
+//       }}
+//     >
+//       {message}
+//     </div>
+//   </div>
+// );
+// return (
+  
+// <div
+//   style={{
+//     width: "100%",
+//     maxWidth: 1400,
+//     flex: 1,
+//     display: "grid",
+//     gridTemplateColumns: "260px 1fr 260px",
+//     gap: 20,
+//     minHeight: 0,
+//     height: "calc(100vh - 8px)", // adjust as needed
+//   }}
+// >
+//   {/* LEFT PANEL */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       padding: 20,
+//       display: "flex",
+//       flexDirection: "column",
+//       gap: 20,
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         STATUS
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: loading
+//             ? "#64748b"
+//             : isVerifying
+//             ? "#2563eb"
+//             : "#16a34a",
+//         }}
+//       >
+//         {loading ? "Loading" : isVerifying ? "Scanning" : "Ready"}
+//       </div>
+//     </div>
+
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         DETECTION
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: multipleFaces ? "#dc2626" : "#16a34a",
+//         }}
+//       >
+//         {multipleFaces ? "Multiple" : "Single"}
+//       </div>
+//     </div>
+
+//     <div>
+//       <div
+//         style={{
+//           fontSize: 11,
+//           color: "#94a3b8",
+//           marginBottom: 6,
+//           letterSpacing: "0.05em",
+//         }}
+//       >
+//         MODE
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 24,
+//           fontWeight: 700,
+//           color: "#111",
+//         }}
+//       >
+//         Auto Verify
+//       </div>
+//     </div>
+//   </div>
+
+//   {/* CENTER CAMERA */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       overflow: "hidden",
+//       position: "relative",
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div
+//       style={{
+//         position: "relative",
+//         width: "100%",
+//         height: "100%",
+//         background: "#000",
+//       }}
+//     >
+//       <video
+//         ref={videoRef}
+//         autoPlay
+//         muted
+//         playsInline
+//         style={{
+//           width: "100%",
+//           height: "100%",
+//           objectFit: "cover",
+//           transform: "scaleX(-1)",
+//         }}
+//       />
+
+//       {/* Face Guide */}
+//       <div
+//         style={{
+//           position: "absolute",
+//           top: "50%",
+//           left: "50%",
+//           width: 220,
+//           height: 280,
+//           transform: "translate(-50%, -50%)",
+//           border: "2px solid rgba(255,255,255,0.5)",
+//           borderRadius: "50%",
+//           pointerEvents: "none",
+//         }}
+//       />
+
+//       {/* Multiple Faces Warning */}
+//       {multipleFaces && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             inset: 0,
+//             background: "rgba(220,38,38,0.85)",
+//             display: "flex",
+//             flexDirection: "column",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             color: "#fff",
+//             gap: 12,
+//           }}
+//         >
+//           <div
+//             style={{
+//               fontSize: 30,
+//               fontWeight: 700,
+//             }}
+//           >
+//             ⚠️
+//           </div>
+
+//           <div
+//             style={{
+//               fontSize: 22,
+//               fontWeight: 700,
+//             }}
+//           >
+//             One Face At A Time
+//           </div>
+
+//           <div
+//             style={{
+//               fontSize: 14,
+//               opacity: 0.9,
+//             }}
+//           >
+//             Please ensure only one person is visible
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   </div>
+
+//   {/* RIGHT PANEL */}
+//   <div
+//     style={{
+//       background: "#fff",
+//       borderRadius: 20,
+//       border: "1px solid #e9ecef",
+//       padding: 20,
+//       display: "flex",
+//       flexDirection: "column",
+//       boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+//     }}
+//   >
+//     <div
+//       style={{
+//         fontSize: 11,
+//         color: "#94a3b8",
+//         marginBottom: 12,
+//         letterSpacing: "0.05em",
+//       }}
+//     >
+//       VERIFICATION RESULT
+//     </div>
+
+//     <div
+//       style={{
+//         flex: 1,
+//         display: "flex",
+//         flexDirection: "column",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         textAlign: "center",
+//       }}
+//     >
+//       <div
+//         style={{
+//           fontSize: 70,
+//           marginBottom: 20,
+//         }}
+//       >
+//         {message.includes("MATCH") || message.includes("✅")
+//           ? "✅"
+//           : message.includes("UNKNOWN") || message.includes("❌")
+//           ? "❌"
+//           : "👤"}
+//       </div>
+
+//       <div
+//         style={{
+//           fontSize: 18,
+//           fontWeight: 700,
+//           color: "#111",
+//           whiteSpace: "pre-line",
+//           lineHeight: 1.6,
+//         }}
+//       >
+//         {message || "Waiting for face..."}
+//       </div>
+//     </div>
+//   </div>
+// </div>
+
+
+// );
+return (
   <div
     style={{
       width: "100vw",
       height: "100vh",
-      background: "#f1f5f9",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 20,
-      boxSizing: "border-box",
       overflow: "hidden",
+      position: "relative",
+      background: "#000",
       fontFamily:
         "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     }}
   >
-    {/* Header */}
-    <div
+    {/* CAMERA */}
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
       style={{
-        marginBottom: 20,
-        textAlign: "center",
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        transform: "scaleX(-1)",
       }}
-    >
-      <h1
-        style={{
-          margin: 0,
-          fontSize: 40,
-          fontWeight: 700,
-          color: "#0f172a",
-        }}
-      >
-        Face Attendance
-      </h1>
+    />
 
-      <p
-        style={{
-          marginTop: 8,
-          fontSize: 16,
-          color: "#64748b",
-        }}
-      >
-        Look at the camera to mark attendance
-      </p>
-    </div>
-
-    {/* Status Chips */}
+    {/* DARK OVERLAY */}
     <div
       style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "radial-gradient(circle at center, transparent 170px, rgba(0,0,0,.75) 171px)",
+      }}
+    />
+
+    {/* TOP STATUS */}
+    <div
+      style={{
+        position: "absolute",
+        top: 25,
+        left: "50%",
+        transform: "translateX(-50%)",
         display: "flex",
         gap: 12,
-        marginBottom: 20,
+        zIndex: 10,
       }}
     >
       <div
         style={{
-          background: loading ? "#64748b" : "#16a34a",
+          background: loading
+            ? "rgba(100,116,139,.85)"
+            : "rgba(22,163,74,.85)",
           color: "#fff",
           padding: "10px 18px",
           borderRadius: 999,
           fontWeight: 600,
-          fontSize: 14,
+          backdropFilter: "blur(10px)",
         }}
       >
-        {loading ? "Loading Models" : "✓ Models Ready"}
+        {loading
+          ? "Loading Models"
+          : "✓ Models Ready"}
       </div>
 
       <div
         style={{
           background: isVerifying
-            ? "#2563eb"
-            : "#64748b",
+            ? "rgba(37,99,235,.85)"
+            : "rgba(100,116,139,.85)",
           color: "#fff",
           padding: "10px 18px",
           borderRadius: 999,
           fontWeight: 600,
-          fontSize: 14,
+          backdropFilter: "blur(10px)",
         }}
       >
         {isVerifying
@@ -468,135 +881,58 @@ Distance: ${bestDistance.toFixed(4)}`
       </div>
     </div>
 
-    {/* Camera Card */}
+    {/* FACE GUIDE */}
     <div
       style={{
-        width: "90%",
-        maxWidth: 1100,
-        height: "70vh",
-        position: "relative",
-        borderRadius: 30,
-        overflow: "hidden",
-        background: "#000",
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        width: 280,
+        height: 340,
+        transform: "translate(-50%, -50%)",
+        borderRadius: "50%",
+        border: "4px solid rgba(255,255,255,.95)",
         boxShadow:
-          "0 20px 60px rgba(0,0,0,.15)",
+          "0 0 40px rgba(255,255,255,.4)",
+        zIndex: 5,
+      }}
+    />
+
+    {/* GUIDE TEXT */}
+    <div
+      style={{
+        position: "absolute",
+        top: "calc(50% + 220px)",
+        left: "50%",
+        transform: "translateX(-50%)",
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: 600,
+        textShadow:
+          "0 2px 12px rgba(0,0,0,.8)",
+        zIndex: 10,
       }}
     >
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: "scaleX(-1)",
-        }}
-      />
-
-      {/* Dark Overlay */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.05), rgba(0,0,0,.2))",
-        }}
-      />
-
-      {/* Face Guide */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: GUIDE_CONFIG.widthPx,
-          height: GUIDE_CONFIG.heightPx,
-          transform: "translate(-50%, -50%)",
-          border: "4px solid rgba(255,255,255,.9)",
-          borderRadius: "50%",
-          boxShadow:
-            "0 0 30px rgba(255,255,255,.4)",
-        }}
-      />
-
-      {/* Center Text */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          bottom: 30,
-          transform: "translateX(-50%)",
-          color: "#fff",
-          fontSize: 20,
-          fontWeight: 600,
-          textShadow:
-            "0 2px 10px rgba(0,0,0,.6)",
-        }}
-      >
-        Position your face inside the guide
-      </div>
-
-      {/* Multiple Faces */}
-      {multipleFaces && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "rgba(220,38,38,.9)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            color: "#fff",
-            zIndex: 20,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 90,
-            }}
-          >
-            ⚠️
-          </div>
-
-          <div
-            style={{
-              fontSize: 36,
-              fontWeight: 700,
-              marginTop: 10,
-            }}
-          >
-            One Face At A Time
-          </div>
-
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 18,
-              opacity: 0.95,
-            }}
-          >
-            Please ensure only one employee is visible
-          </div>
-        </div>
-      )}
+      Position your face inside the guide
     </div>
 
-    {/* Result Card */}
+    {/* RESULT */}
     <div
       style={{
-        marginTop: 20,
-        minWidth: 450,
+        position: "absolute",
+        bottom: 40,
+        left: "50%",
+        transform: "translateX(-50%)",
+        minWidth: 400,
         maxWidth: 800,
-        background: "#fff",
+        background: "rgba(0,0,0,.35)",
+        backdropFilter: "blur(15px)",
+        border: "1px solid rgba(255,255,255,.15)",
         borderRadius: 24,
-        padding: "22px 30px",
+        padding: "20px 30px",
         textAlign: "center",
-        boxShadow:
-          "0 10px 40px rgba(0,0,0,.08)",
+        color: "#fff",
+        zIndex: 10,
       }}
     >
       <div
@@ -616,16 +952,59 @@ Distance: ${bestDistance.toFixed(4)}`
 
       <div
         style={{
-          fontSize: 22,
+          fontSize: 24,
           fontWeight: 700,
-          color: "#0f172a",
           whiteSpace: "pre-line",
-          lineHeight: 1.5,
         }}
       >
         {message || "Waiting for face..."}
       </div>
     </div>
+
+    {/* MULTIPLE FACE WARNING */}
+    {multipleFaces && (
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "rgba(220,38,38,.88)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#fff",
+          zIndex: 50,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 100,
+          }}
+        >
+          ⚠️
+        </div>
+
+        <div
+          style={{
+            fontSize: 40,
+            fontWeight: 700,
+            marginTop: 10,
+          }}
+        >
+          One Face At A Time
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 20,
+          }}
+        >
+          Please ensure only one employee is visible
+        </div>
+      </div>
+    )}
   </div>
 );
 }
