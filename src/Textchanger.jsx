@@ -1086,7 +1086,7 @@ return (
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                {attendanceDetails?.firstname+""+attendanceDetails?.lastname || "Employee"}
+                {attendanceDetails?.lastname || "Employee"}
               </div>
               <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
                 {emplattendanceDetails?.username || "Code unavailable"}
