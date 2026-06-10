@@ -338,7 +338,7 @@ const getDescriptorFromVideo = async () => {
       type: action,
       employeeId: employee.id || employee.employeeId || employee.empId || employeeCode || null,
     };
-
+Alert(employee);
     window.ReactNativeWebView.postMessage(JSON.stringify(payload));
 
     setMessage(`Sending ${action.replace("_", " ")} request...`);
