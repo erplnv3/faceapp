@@ -186,21 +186,21 @@ function Textchanger() {
         if (!videoRef.current) return;
 
         // ✅ Single neural net pass — detection + descriptor together
-        const result = await faceapi
-          // .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-           .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 }))
-          .withFaceLandmarks()
-          .withFaceDescriptor();
-// const result = await faceapi
-//   .detectSingleFace(
-//     videoRef.current,
-//     new faceapi.TinyFaceDetectorOptions({
-//       inputSize: 160,
-//       scoreThreshold: 0.5,
-//     })
-//   )
-//   .withFaceLandmarks()
-//   .withFaceDescriptor();
+        // const result = await faceapi
+        //   // .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+        //    .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 }))
+        //   .withFaceLandmarks()
+        //   .withFaceDescriptor();
+const result = await faceapi
+  .detectSingleFace(
+    videoRef.current,
+    new faceapi.TinyFaceDetectorOptions({
+      inputSize: 160,
+      scoreThreshold: 0.5,
+    })
+  )
+  .withFaceLandmarks()
+  .withFaceDescriptor();
         if (!result) {
           setMultipleFaces(false);
           setMessage("No Face Detected");
