@@ -154,7 +154,11 @@ function Textchanger() {
       ]);
       console.timeEnd("MODEL_LOAD");
 
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({  video: {
+    width: { ideal: 640 },
+    height: { ideal: 480 },
+    facingMode: "user",
+  }, });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
