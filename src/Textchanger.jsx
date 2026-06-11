@@ -158,7 +158,7 @@ function Textchanger() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // ✅ Wait for video to actually have frames before starting
+        // ✅ Wait for video to actually have frames/ before starting
         videoRef.current.onloadeddata = () => {
           setLoading(false);
           setMessage("Models Loaded");
