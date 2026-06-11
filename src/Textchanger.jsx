@@ -194,11 +194,7 @@ console.time("MODEL_LOAD");
       ]);
 console.timeEnd("MODEL_LOAD");
       const stream = await navigator.mediaDevices.getUserMedia({
-        // video: true,
-        video: {
-  width: 320,
-  height: 240
-}
+        video: true,
       });
 
       if (videoRef.current) {
