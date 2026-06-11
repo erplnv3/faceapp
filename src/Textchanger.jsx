@@ -158,7 +158,7 @@ function Textchanger() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // ✅ Wait for video to actually have frames/ before starting
+        // ✅ Wait for video to actually have frames before starting
         videoRef.current.onloadeddata = () => {
           setLoading(false);
           setMessage("Models Loaded");
@@ -177,8 +177,6 @@ function Textchanger() {
     setMessage("Verification Started");
 
     verificationInterval.current = setInterval(async () => {
-      if (isProcessingRef.current) return;  
-  isProcessingRef.current = true;
       try {
         if (registeredFacesRef.current.length === 0) {
           setMessage("No Faces Loaded");
@@ -241,9 +239,7 @@ function Textchanger() {
         }
       } catch (error) {
         console.error(error);
-      } finally {
-    isProcessingRef.current = false;
-  }
+      }
     }, 1000);
   };
 
