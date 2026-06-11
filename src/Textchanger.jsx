@@ -523,7 +523,7 @@ const result = await faceapi
       </div>
 
       {/* RIGHT PANEL */}
-      <div style={{ position: "absolute", top: "50%", right: 40, transform: "translateY(-50%)", width: 230, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
+      {/* <div style={{ position: "absolute", top: "50%", right: 40, transform: "translateY(-50%)", width: 230, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
         <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)" }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
             System Status
@@ -535,7 +535,7 @@ const result = await faceapi
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* RESULT BAR */}
       <div
