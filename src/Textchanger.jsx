@@ -199,8 +199,8 @@ const result = await faceapi
   .detectSingleFace(
     videoRef.current,
     new faceapi.TinyFaceDetectorOptions({
-      // inputSize: 160,
-      inputSize: 110,
+      inputSize: 160,
+      // inputSize: 96,
       scoreThreshold: 0.5,
     })
   )
