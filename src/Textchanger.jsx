@@ -179,11 +179,7 @@ console.log(
     }
   };
 }, []);
-console.log(
-  "VIDEO:",
-  videoRef.current.videoWidth,
-  videoRef.current.videoHeight
-);
+
   const initialize = async () => {
     try {
       // const MODEL_URL =
