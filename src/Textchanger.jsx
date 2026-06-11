@@ -184,13 +184,14 @@ console.log(
     try {
       const MODEL_URL =
         "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights";
+console.time("MODEL_LOAD");
 
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
       ]);
-
+console.timeEnd("MODEL_LOAD");
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
@@ -495,27 +496,42 @@ if (facesInsideOval.length > 1){
 // }
 //       } 
       
+//       if (bestDistance < 0.5) {
+
+//   if (lastMatchedRef.current !== bestMatch) {
+
+//     lastMatchedRef.current = bestMatch;
+
+//     window.ReactNativeWebView?.postMessage(
+//       JSON.stringify({
+//         type: "FACE_MATCHED",
+//         employeeid: bestMatch,
+//         distance: bestDistance,
+//         timestamp: new Date().toISOString(),
+//       })
+//     );
+//   }
+
+//   setMessage(`🟢 MATCH
+// Name: ${bestMatch}
+// Distance: ${bestDistance.toFixed(4)}`);
+// }
       if (bestDistance < 0.5) {
-
   if (lastMatchedRef.current !== bestMatch) {
-
     lastMatchedRef.current = bestMatch;
+
+    console.log("SENDING ONCE");
+
+    clearInterval(verificationInterval.current);
 
     window.ReactNativeWebView?.postMessage(
       JSON.stringify({
         type: "FACE_MATCHED",
         employeeid: bestMatch,
-        distance: bestDistance,
-        timestamp: new Date().toISOString(),
       })
     );
   }
-
-  setMessage(`🟢 MATCH
-Name: ${bestMatch}
-Distance: ${bestDistance.toFixed(4)}`);
 }
-      
       else {
         setMessage(
           `🔴 UNKNOWN PERSON
@@ -526,7 +542,7 @@ Distance: ${bestDistance.toFixed(4)}`
     } catch (error) {
       console.log(error);
     }
-  }, 300);
+  }, 1000);
 };
 
   const stopVerification = () => {
