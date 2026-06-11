@@ -204,7 +204,7 @@ const result = await faceapi
       scoreThreshold: 0.5,
     })
   )
-  // .withFaceLandmarks()
+  .withFaceLandmarks()
   .withFaceDescriptor();
         if (!result) {
           setMultipleFaces(false);
