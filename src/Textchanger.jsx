@@ -179,7 +179,11 @@ console.log(
     }
   };
 }, []);
-
+console.log(
+  "VIDEO:",
+  videoRef.current.videoWidth,
+  videoRef.current.videoHeight
+);
   const initialize = async () => {
     try {
       // const MODEL_URL =
@@ -194,7 +198,11 @@ console.time("MODEL_LOAD");
       ]);
 console.timeEnd("MODEL_LOAD");
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        // video: true,
+        video: {
+  width: 320,
+  height: 240,
+}
       });
 
       if (videoRef.current) {
@@ -393,8 +401,159 @@ const getDescriptorFromVideo = async () => {
   //     setMessage(" Registration Failed");
   //   }
   // };
+////////////////////////////////
+//   const startVerification = async () => {
+//   if (verificationInterval.current) {
+//     clearInterval(verificationInterval.current);
+//   }
 
-  const startVerification = async () => {
+//   setIsVerifying(true);
+//   setMessage("Verification Started");
+
+//   verificationInterval.current = setInterval(async () => {
+//     try {
+//       const registeredFaces =
+//         JSON.parse(localStorage.getItem("registeredFaces")) || [];
+
+//       if (registeredFaces.length === 0) {
+//         setMessage("No Faces Loaded");
+//         return;
+//       }
+
+//       const faces = await getFaceDetections();
+// const videoWidth = videoRef.current.videoWidth;
+// const videoHeight = videoRef.current.videoHeight;
+
+// const guideCenterX = videoWidth / 2;
+// const guideCenterY = videoHeight / 2;
+
+// const rx = 135; // 270 / 2
+// const ry = 165; // 330 / 2
+
+// const facesInsideOval = faces.filter((face) => {
+//   const box = face.box;
+
+//   const centerX = box.x + box.width / 2;
+//   const centerY = box.y + box.height / 2;
+
+//   const dx = centerX - guideCenterX;
+//   const dy = centerY - guideCenterY;
+
+//   return (
+//     (dx * dx) / (rx * rx) +
+//       (dy * dy) / (ry * ry) <=
+//     1
+//   );
+// });
+// if (facesInsideOval.length === 0){
+//        setMultipleFaces(false);
+//         setMessage("No Face Detected");
+//         return;
+//       }
+
+// if (facesInsideOval.length > 1){
+//           setMultipleFaces(true);
+//         setMessage("Multiple Faces Detected\nOnly one face at a time");
+//         return;
+//       }
+
+//       setMultipleFaces(false);
+
+//       const descriptor = await getDescriptorFromVideo();
+
+//       if (!descriptor) {
+//         setMessage("No Face Detected");
+//         return;
+//       }
+
+//       let bestMatch = null;
+//       let bestDistance = 999;
+
+//       for (const person of registeredFaces) {
+//         const savedDescriptor = new Float32Array(
+//           person.descriptor
+//         );
+
+//         const distance = faceapi.euclideanDistance(
+//           descriptor,
+//           savedDescriptor
+//         );
+
+//         if (distance < bestDistance) {
+//           bestDistance = distance;
+//           bestMatch = person.name;
+//         }
+//       }
+
+// //       if (bestDistance < 0.5) {
+// //         setMessage(
+// //           `🟢 MATCH
+
+// // Name: ${bestMatch}
+
+// // Distance: ${bestDistance.toFixed(4)}`
+// //         );
+// //         if (window.ReactNativeWebView) {
+// //   window.ReactNativeWebView.postMessage(
+// //     JSON.stringify({
+// //       type: "FACE_MATCHED",
+// //       employeeid: bestMatch,
+// //       distance: bestDistance,
+// //       timestamp: new Date().toISOString(),
+// //     })
+// //   );
+// // }
+// //       } 
+      
+// //       if (bestDistance < 0.5) {
+
+// //   if (lastMatchedRef.current !== bestMatch) {
+
+// //     lastMatchedRef.current = bestMatch;
+
+// //     window.ReactNativeWebView?.postMessage(
+// //       JSON.stringify({
+// //         type: "FACE_MATCHED",
+// //         employeeid: bestMatch,
+// //         distance: bestDistance,
+// //         timestamp: new Date().toISOString(),
+// //       })
+// //     );
+// //   }
+
+// //   setMessage(`🟢 MATCH
+// // Name: ${bestMatch}
+// // Distance: ${bestDistance.toFixed(4)}`);
+// // }
+//       if (bestDistance < 0.5) {
+//   if (lastMatchedRef.current !== bestMatch) {
+//     lastMatchedRef.current = bestMatch;
+
+//     console.log("SENDING ONCE");
+
+//     clearInterval(verificationInterval.current);
+
+//     window.ReactNativeWebView?.postMessage(
+//       JSON.stringify({
+//         type: "FACE_MATCHED",
+//         employeeid: bestMatch,
+//       })
+//     );
+//   }
+// }
+//       else {
+//         setMessage(
+//           `🔴 UNKNOWN PERSON
+
+// Distance: ${bestDistance.toFixed(4)}`
+//         );
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }, 1000);
+// };
+const startVerification = async () => {
   if (verificationInterval.current) {
     clearInterval(verificationInterval.current);
   }
@@ -404,6 +563,8 @@ const getDescriptorFromVideo = async () => {
 
   verificationInterval.current = setInterval(async () => {
     try {
+      console.time("FULL_VERIFY");
+
       const registeredFaces =
         JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
@@ -412,51 +573,61 @@ const getDescriptorFromVideo = async () => {
         return;
       }
 
+      console.time("FACE_DETECTION");
       const faces = await getFaceDetections();
-const videoWidth = videoRef.current.videoWidth;
-const videoHeight = videoRef.current.videoHeight;
+      console.timeEnd("FACE_DETECTION");
 
-const guideCenterX = videoWidth / 2;
-const guideCenterY = videoHeight / 2;
+      const videoWidth = videoRef.current.videoWidth;
+      const videoHeight = videoRef.current.videoHeight;
 
-const rx = 135; // 270 / 2
-const ry = 165; // 330 / 2
+      const guideCenterX = videoWidth / 2;
+      const guideCenterY = videoHeight / 2;
 
-const facesInsideOval = faces.filter((face) => {
-  const box = face.box;
+      const rx = 135;
+      const ry = 165;
 
-  const centerX = box.x + box.width / 2;
-  const centerY = box.y + box.height / 2;
+      const facesInsideOval = faces.filter((face) => {
+        const box = face.box;
 
-  const dx = centerX - guideCenterX;
-  const dy = centerY - guideCenterY;
+        const centerX = box.x + box.width / 2;
+        const centerY = box.y + box.height / 2;
 
-  return (
-    (dx * dx) / (rx * rx) +
-      (dy * dy) / (ry * ry) <=
-    1
-  );
-});
-if (facesInsideOval.length === 0){
-       setMultipleFaces(false);
+        const dx = centerX - guideCenterX;
+        const dy = centerY - guideCenterY;
+
+        return (
+          (dx * dx) / (rx * rx) +
+            (dy * dy) / (ry * ry) <=
+          1
+        );
+      });
+
+      if (facesInsideOval.length === 0) {
+        setMultipleFaces(false);
         setMessage("No Face Detected");
         return;
       }
 
-if (facesInsideOval.length > 1){
-          setMultipleFaces(true);
-        setMessage("Multiple Faces Detected\nOnly one face at a time");
+      if (facesInsideOval.length > 1) {
+        setMultipleFaces(true);
+        setMessage(
+          "Multiple Faces Detected\nOnly one face at a time"
+        );
         return;
       }
 
       setMultipleFaces(false);
 
+      console.time("DESCRIPTOR");
       const descriptor = await getDescriptorFromVideo();
+      console.timeEnd("DESCRIPTOR");
 
       if (!descriptor) {
         setMessage("No Face Detected");
         return;
       }
+
+      console.time("MATCHING");
 
       let bestMatch = null;
       let bestDistance = 999;
@@ -477,63 +648,25 @@ if (facesInsideOval.length > 1){
         }
       }
 
-//       if (bestDistance < 0.5) {
-//         setMessage(
-//           `🟢 MATCH
+      console.timeEnd("MATCHING");
+      console.timeEnd("FULL_VERIFY");
 
-// Name: ${bestMatch}
-
-// Distance: ${bestDistance.toFixed(4)}`
-//         );
-//         if (window.ReactNativeWebView) {
-//   window.ReactNativeWebView.postMessage(
-//     JSON.stringify({
-//       type: "FACE_MATCHED",
-//       employeeid: bestMatch,
-//       distance: bestDistance,
-//       timestamp: new Date().toISOString(),
-//     })
-//   );
-// }
-//       } 
-      
-//       if (bestDistance < 0.5) {
-
-//   if (lastMatchedRef.current !== bestMatch) {
-
-//     lastMatchedRef.current = bestMatch;
-
-//     window.ReactNativeWebView?.postMessage(
-//       JSON.stringify({
-//         type: "FACE_MATCHED",
-//         employeeid: bestMatch,
-//         distance: bestDistance,
-//         timestamp: new Date().toISOString(),
-//       })
-//     );
-//   }
-
-//   setMessage(`🟢 MATCH
-// Name: ${bestMatch}
-// Distance: ${bestDistance.toFixed(4)}`);
-// }
       if (bestDistance < 0.5) {
-  if (lastMatchedRef.current !== bestMatch) {
-    lastMatchedRef.current = bestMatch;
+        if (lastMatchedRef.current !== bestMatch) {
+          lastMatchedRef.current = bestMatch;
 
-    console.log("SENDING ONCE");
+          console.log("SENDING ONCE");
 
-    clearInterval(verificationInterval.current);
+          clearInterval(verificationInterval.current);
 
-    window.ReactNativeWebView?.postMessage(
-      JSON.stringify({
-        type: "FACE_MATCHED",
-        employeeid: bestMatch,
-      })
-    );
-  }
-}
-      else {
+          window.ReactNativeWebView?.postMessage(
+            JSON.stringify({
+              type: "FACE_MATCHED",
+              employeeid: bestMatch,
+            })
+          );
+        }
+      } else {
         setMessage(
           `🔴 UNKNOWN PERSON
 
@@ -545,7 +678,6 @@ Distance: ${bestDistance.toFixed(4)}`
     }
   }, 1000);
 };
-
   const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
