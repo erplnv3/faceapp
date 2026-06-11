@@ -203,10 +203,10 @@ console.timeEnd("MODEL_LOAD");
 
       setLoading(false);
       setMessage(" Models Loaded");
-
-setTimeout(() => {
   startVerification();
-}, 1000);
+
+// setTimeout(() => {
+// }, 1000);
     } catch (error) {
       console.error(error);
       setMessage("Failed to load models or camera");
