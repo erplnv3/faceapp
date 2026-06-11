@@ -182,8 +182,9 @@ console.log(
 
   const initialize = async () => {
     try {
-      const MODEL_URL =
-        "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights";
+      // const MODEL_URL =
+      //   "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights";
+      const MODEL_URL = "/models";
 console.time("MODEL_LOAD");
 
       await Promise.all([
