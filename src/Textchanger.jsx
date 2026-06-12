@@ -5,7 +5,7 @@ function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
   const registeredFacesRef = useRef([]); // ✅ No localStorage — faces live here
-
+const cooldownRef = useRef({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -89,6 +89,9 @@ function Textchanger() {
       //   }, 1400);
       // }
        if (resultData.success) {
+        if (employee?.username) {
+  cooldownRef.current[employee.username] = Date.now();
+}
     setTimeout(() => {
       setEmployee(null);
       setAttendanceStatus(null);
@@ -252,6 +255,25 @@ const result = await faceapi
         }
 
         if (bestDistance < 0.45) {
+
+const lastSeen = cooldownRef.current[bestMatch];
+
+if (
+  lastSeen &&
+  Date.now() - lastSeen < 5 * 60 * 1000
+) {
+  const minsLeft = Math.ceil(
+    (5 * 60 * 1000 - (Date.now() - lastSeen)) / 60000
+  );
+
+  setMessage(
+    `⏳ ${bestMatch}\nPlease wait ${minsLeft} min`
+  );
+
+  return;
+}
+
+
           if (lastMatchedRef.current !== bestMatch) {
             lastMatchedRef.current = bestMatch;
             clearInterval(verificationInterval.current);
