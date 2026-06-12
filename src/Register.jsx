@@ -720,22 +720,20 @@ return (
               border: "1px solid #e5e7eb",
             }}
           >
-            <input
-              type="text"
-              value={name}
-              onChange={(e) =>
-                setName(e.target.value)
-              }
-              placeholder="Employee ID"
-              style={{
-                width: "100%",
-                padding: 14,
-                borderRadius: 12,
-                border:
-                  "1px solid #d1d5db",
-                marginBottom: 14,
-              }}
-            />
+           <input
+  type="Number"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  placeholder="Employee ID"
+  style={{
+    width: "100%",
+    boxSizing: "border-box",
+    padding: 14,
+    borderRadius: 12,
+    border: "1px solid #d1d5db",
+    marginBottom: 14,
+  }}
+/>
 
            <button
   onClick={registerFace}
