@@ -81,13 +81,24 @@ function Textchanger() {
       if (!resultData) return;
       setAttendanceResult(resultData);
       setMessage(resultData.message || "Attendance update received.");
-      if (resultData.success) {
-        setTimeout(() => {
-          setEmployee(null);
-          setAttendanceStatus(null);
-          setAttendanceRecord(null);
-        }, 1400);
-      }
+      // if (resultData.success) {
+      //   setTimeout(() => {
+      //     setEmployee(null);
+      //     setAttendanceStatus(null);
+      //     setAttendanceRecord(null);
+      //   }, 1400);
+      // }
+       if (resultData.success) {
+    setTimeout(() => {
+      setEmployee(null);
+      setAttendanceStatus(null);
+      setAttendanceRecord(null);
+      setAttendanceResult(null);
+
+      lastMatchedRef.current = null;
+      startVerification();   // ADD THIS
+    }, 2500);
+  }
     };
 
     window.addEventListener("employeeMatched", handleEmployeeMatched);
