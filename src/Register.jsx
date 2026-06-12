@@ -10,6 +10,7 @@ import * as faceapi from "face-api.js";
   const [name, setName] = useState("");
   const [multipleFaces, setMultipleFaces] = useState(false);
   const lastMatchedRef = useRef(null);
+  const [isRegistering, setIsRegistering] = useState(false);
 useEffect(() => {
   initialize();
 
@@ -92,6 +93,34 @@ useEffect(() => {
 
   setFaceCount(faces.length);
 }, [message]);
+
+useEffect(() => {
+  const handleRegistrationResult = (event) => {
+    const result = event.detail;
+
+    setIsRegistering(false);
+
+    if (result.success) {
+      alert(result.message || "Face Registered Successfully");
+      setName("");
+    } else {
+      alert(result.message || "Registration Failed");
+    }
+  };
+
+  window.addEventListener(
+    "registrationResult",
+    handleRegistrationResult
+  );
+
+  return () => {
+    window.removeEventListener(
+      "registrationResult",
+      handleRegistrationResult
+    );
+  };
+}, []);
+
   const getFaceDetections = async () => {
     if (!videoRef.current) return [];
 
@@ -117,57 +146,58 @@ useEffect(() => {
     return detection.descriptor;
   };
 
-  const registerFace = async () => {
-  try {
-    if (!name.trim()) {
-      setMessage(" Enter Name First");
-      return;
-    }
+//   const registerFace = async () => {
+//       if (isRegistering) return;
+//   try {
+//     if (!name.trim()) {
+//       setMessage(" Enter Name First");
+//       return;
+//     }
 
-    setMessage("Registering Face...");
+//     setMessage("Registering Face...");
 
-    const descriptor = await getDescriptorFromVideo();
+//     const descriptor = await getDescriptorFromVideo();
 
-    if (!descriptor) {
-      setMessage(" No Face Detected");
-      return;
-    }
+//     if (!descriptor) {
+//       setMessage(" No Face Detected");
+//       return;
+//     }
 
-    const faceData = {
-      name: name.trim(),
-      descriptor: Array.from(descriptor),
-      registeredAt: new Date().toISOString(),
-    };
+//     const faceData = {
+//       name: name.trim(),
+//       descriptor: Array.from(descriptor),
+//       registeredAt: new Date().toISOString(),
+//     };
 
-    const registeredFaces =
-      JSON.parse(localStorage.getItem("registeredFaces")) || [];
+//     const registeredFaces =
+//       JSON.parse(localStorage.getItem("registeredFaces")) || [];
 
-    registeredFaces.push(faceData);
+//     registeredFaces.push(faceData);
 
-    localStorage.setItem(
-      "registeredFaces",
-      JSON.stringify(registeredFaces)
-    );
+//     localStorage.setItem(
+//       "registeredFaces",
+//       JSON.stringify(registeredFaces)
+//     );
 
-    if (window.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          type: "FACE_REGISTERED",
-          data: faceData,
-        })
-      );
-    }
+//     if (window.ReactNativeWebView) {
+//       window.ReactNativeWebView.postMessage(
+//         JSON.stringify({
+//           type: "FACE_REGISTERED",
+//           data: faceData,
+//         })
+//       );
+//     }
 
-    setMessage(
-      ` ${name} Registered & Sent To Mobile`
-    );
+//     setMessage(
+//       ` ${name} Registered & Sent To Mobile`
+//     );
 
-    setName("");
-  } catch (error) {
-    console.log(error);
-    setMessage(" Registration Failed");
-  }
-};
+//     setName("");
+//   } catch (error) {
+//     console.log(error);
+//     setMessage(" Registration Failed");
+//   }
+// };
   // const registerFace = async () => {
   //   try {
   //     if (!name.trim()) {
@@ -204,7 +234,43 @@ useEffect(() => {
   //     setMessage(" Registration Failed");
   //   }
   // };
+const registerFace = async () => {
+  if (isRegistering) return;
 
+  try {
+    if (!name.trim()) {
+      alert("Please enter Employee ID");
+      return;
+    }
+
+    setIsRegistering(true);
+    setMessage("Registering Face...");
+
+    const descriptor = await getDescriptorFromVideo();
+
+    if (!descriptor) {
+      alert("No Face Detected");
+      return;
+    }
+
+    const faceData = {
+      name: name.trim(),
+      descriptor: Array.from(descriptor),
+      registeredAt: new Date().toISOString(),
+    };
+
+    window.ReactNativeWebView?.postMessage(
+      JSON.stringify({
+        type: "FACE_REGISTERED",
+        data: faceData,
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    alert("Registration Failed");
+    setIsRegistering(false);
+  }
+};
   const startVerification = async () => {
   if (verificationInterval.current) {
     clearInterval(verificationInterval.current);
@@ -670,20 +736,22 @@ return (
               }}
             />
 
-            <button
-              onClick={registerFace}
-              style={{
-                width: "100%",
-                padding: 14,
-                borderRadius: 12,
-                border: "none",
-                background: "#2563eb",
-                color: "#fff",
-                fontWeight: 700,
-              }}
-            >
-              Register Face
-            </button>
+           <button
+  onClick={registerFace}
+  disabled={isRegistering}
+  style={{
+    width: "100%",
+    padding: 14,
+    borderRadius: 12,
+    border: "none",
+    background: isRegistering ? "#94a3b8" : "#2563eb",
+    color: "#fff",
+    fontWeight: 700,
+    cursor: isRegistering ? "not-allowed" : "pointer",
+  }}
+>
+  {isRegistering ? "Registering..." : "Register Face"}
+</button>
           </div>
         )}
 
