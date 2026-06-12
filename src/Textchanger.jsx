@@ -4,8 +4,8 @@ import * as faceapi from "face-api.js";
 function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
-  const registeredFacesRef = useRef([]); // ✅ No localStorage — faces live here
-const cooldownRef = useRef({});
+  const registeredFacesRef = useRef([]); 
+const blockedFacesRef = useRef({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -15,7 +15,7 @@ const cooldownRef = useRef({});
   const [attendanceResult, setAttendanceResult] = useState(null);
   const [multipleFaces, setMultipleFaces] = useState(false);
   const [attendanceDetails, setAttendanceDetails] = useState(null);
-  const [faceCount, setFaceCount] = useState(0); // ✅ For systemStatus display
+  const [faceCount, setFaceCount] = useState(0);  
   const [currentTime, setCurrentTime] = useState(new Date());
   const lastMatchedRef = useRef(null);
 
@@ -89,10 +89,10 @@ const cooldownRef = useRef({});
       //   }, 1400);
       // }
        if (resultData.success) {
-        if (employee?.username) {
-  cooldownRef.current[employee.username] = Date.now();
-}
-    setTimeout(() => {
+
+     blockedFacesRef.current[lastMatchedRef.current] = Date.now();
+
+        setTimeout(() => {
       setEmployee(null);
       setAttendanceStatus(null);
       setAttendanceRecord(null);
@@ -256,22 +256,16 @@ const result = await faceapi
 
         if (bestDistance < 0.45) {
 
-const lastSeen = cooldownRef.current[bestMatch];
 
-if (
-  lastSeen &&
-  Date.now() - lastSeen < 5 * 60 * 1000
-) {
-  const minsLeft = Math.ceil(
-    (5 * 60 * 1000 - (Date.now() - lastSeen)) / 60000
-  );
+ const blockedAt = blockedFacesRef.current[bestMatch];
 
-  setMessage(
-    `⏳ ${bestMatch}\nPlease wait ${minsLeft} min`
-  );
-
-  return;
-}
+  if (
+    blockedAt &&
+    Date.now() - blockedAt < 5 * 60 * 1000
+  ) {
+    setMessage(`⏳ ${bestMatch} recently processed`);
+    return;
+  }
 
 
           if (lastMatchedRef.current !== bestMatch) {
