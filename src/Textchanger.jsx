@@ -263,7 +263,7 @@ const result = await faceapi
     blockedAt &&
     Date.now() - blockedAt < 5 * 60 * 1000
   ) {
-    setMessage(`⏳ ${bestMatch} recently processed`);
+    setMessage(` recently processed`);
     return;
   }
 
