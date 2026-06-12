@@ -101,10 +101,10 @@ useEffect(() => {
     setIsRegistering(false);
 
     if (result.success) {
-      alert(result.message || "Face Registered Successfully");
+      setMessage(result.message || "Face Registered Successfully");
       setName("");
     } else {
-      alert(result.message || "Registration Failed");
+      setMessage(result.message || "Registration Failed");
     }
   };
 
