@@ -351,7 +351,7 @@ const registerFace = async () => {
 // }
 //       } 
       
-      if (bestDistance < 0.5) {
+      if (bestDistance < 0.43) {
 
   if (lastMatchedRef.current !== bestMatch) {
 
