@@ -716,7 +716,7 @@ return (
             style={{
               background: "#fff",
               borderRadius: 20,
-              padding: 20,
+              padding: 24,
               border: "1px solid #e5e7eb",
             }}
           >
