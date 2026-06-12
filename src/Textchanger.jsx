@@ -240,7 +240,7 @@ const result = await faceapi
           }
         }
 
-        if (bestDistance < 0.5) {
+        if (bestDistance < 0.45) {
           if (lastMatchedRef.current !== bestMatch) {
             lastMatchedRef.current = bestMatch;
             clearInterval(verificationInterval.current);
