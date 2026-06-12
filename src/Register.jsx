@@ -239,7 +239,8 @@ const registerFace = async () => {
 
   try {
     if (!name.trim()) {
-      alert("Please enter Employee ID");
+      // alert("Please enter Employee ID");
+      setMessage("⚠ Please enter Employee ID");
       return;
     }
 
