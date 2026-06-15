@@ -476,18 +476,36 @@ const result = await faceapi
           <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, letterSpacing: "-0.01em" }}>FaceID Attendance</span>
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: loading ? "rgba(100,116,139,0.3)" : "rgba(22,163,74,0.2)", border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`, color: loading ? "#94a3b8" : "#4ade80", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
+        {/* <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: loading ? "rgba(100,116,139,0.3)" : "rgba(22, 163, 74, 0.7)", border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`, color: loading ? "#94a3b8" : "#4ade80", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
             {loading ? "Loading" : "Models Ready"}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: isVerifying ? "rgba(37,99,235,0.25)" : "rgba(100,116,139,0.2)", border: `1px solid ${isVerifying ? "rgba(96,165,250,0.4)" : "rgba(100,116,139,0.3)"}`, color: isVerifying ? "#93c5fd" : "#64748b", padding: "5px 10px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
             {isVerifying ? "Verifying" : "Standby"}
           </div>
-        </div>
+        </div> */}
 
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 500, letterSpacing: "0.02em" }}>
-          {currentTime.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-        </div>
+       <div
+  style={{
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: "0.02em",
+  }}
+>
+  {currentTime.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })}
+  {" • "}
+  {currentTime.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })}
+</div>
       </div>
 
       {/* LEFT PANEL */}
