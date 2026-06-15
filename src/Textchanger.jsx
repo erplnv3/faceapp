@@ -541,7 +541,7 @@ const stopVerification = () => {
             }}
           >
             <button
-              onClick={closeEmployeeModal}
+              onClick={()=>closeEmployeeModal()}
               aria-label="Close"
               style={{
                 position: "absolute", top: 12, right: 12,
