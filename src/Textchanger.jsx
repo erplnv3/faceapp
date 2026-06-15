@@ -97,10 +97,10 @@ const blockedFacesRef = useRef({});
       // setAttendanceStatus(null);
       // setAttendanceRecord(null);
       // setAttendanceResult(null);
-
+closeEmployeeModal();
       // lastMatchedRef.current = null;
       // startVerification();   // ADD THIS
-        resetSession();
+        // resetSession();
     }, 1500);
   }
     };
@@ -500,7 +500,7 @@ const stopVerification = () => {
   };
 
   const closeEmployeeModal = () => {
-    // Alert("ok")
+    alert("ok")
     setEmployee(null);
     setAttendanceStatus(null);
     setAttendanceRecord(null);
@@ -616,6 +616,11 @@ const stopVerification = () => {
           fontSize: 16,
           fontWeight: 700,
           cursor: "pointer",
+            position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 99999,
+    pointerEvents: "auto",
         }}
       >
         Close
@@ -638,7 +643,11 @@ const stopVerification = () => {
           color: "#fff",
           fontSize: 16,
           fontWeight: 700,
-          cursor: "pointer",
+         position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 99999,
+    pointerEvents: "auto",
         }}
       >
         Close
