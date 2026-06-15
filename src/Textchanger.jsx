@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as faceapi from "face-api.js";
-import Swal from "sweetalert2";
+
 function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
@@ -93,14 +93,14 @@ const blockedFacesRef = useRef({});
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
         setTimeout(() => {
-      setEmployee(null);
-      setAttendanceStatus(null);
-      setAttendanceRecord(null);
-      setAttendanceResult(null);
-closeEmployeeModal()
+      // setEmployee(null);
+      // setAttendanceStatus(null);
+      // setAttendanceRecord(null);
+      // setAttendanceResult(null);
+
       // lastMatchedRef.current = null;
       // startVerification();   // ADD THIS
-        // resetSession();
+        resetSession();
     }, 1500);
   }
     };
@@ -126,13 +126,13 @@ closeEmployeeModal()
       return () => clearTimeout(timeout);
     }
   }, [attendanceResult]);
-// useEffect(() => {
-//   window.resetSession = resetSession;
+useEffect(() => {
+  window.resetSession = resetSession;
 
-//   return () => {
-//     delete window.resetSession;
-//   };
-// }, []);
+  return () => {
+    delete window.resetSession;
+  };
+}, []);
   // Init
   useEffect(() => {
     // ✅ receiveFaceData: store directly in ref, no localStorage
@@ -523,114 +523,210 @@ const stopVerification = () => {
     <div style={{ display: "flex", justifyContent: "center" }}>
       {/* EMPLOYEE MODAL */}
       {employee && (
+       <div
+  style={{
+    position: "absolute",
+    inset: 0,
+    zIndex: 80,
+    background: "rgba(0,0,0,0.45)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  }}
+>
+  <div
+    style={{
+      width: "100%",
+      maxWidth: 520,
+      background: "#ffffff",
+      borderRadius: 24,
+      boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+      overflow: "hidden",
+      position: "relative",
+    }}
+  >
+    {/* Header */}
+    <div
+      style={{
+        padding: "24px 28px",
+        borderBottom: "1px solid #e5e7eb",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
         <div
           style={{
-            position: "absolute", inset: 0, zIndex: 80,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(0,0,0,0.55)", padding: 24,
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#111827",
           }}
         >
+          Attendance
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            color: "#6b7280",
+            marginTop: 4,
+          }}
+        >
+          Mark your attendance
+        </div>
+      </div>
+
+      <button
+        onClick={closeEmployeeModal}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          border: "1px solid #e5e7eb",
+          background: "#fff",
+          cursor: "pointer",
+        }}
+      >
+        ✕
+      </button>
+    </div>
+
+    {/* Employee */}
+    <div
+      style={{
+        padding: 28,
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+      }}
+    >
+      <div
+        style={{
+          width: 80,
+          height: 80,
+          borderRadius: 20,
+          overflow: "hidden",
+          background: "#f3f4f6",
+          flexShrink: 0,
+        }}
+      >
+        {employeePhoto ? (
+          <img
+            src={employeePhoto}
+            alt="Employee"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
           <div
             style={{
-              width: "100%", maxWidth: 560, borderRadius: 28,
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              backdropFilter: "blur(28px)",
-              boxShadow: "0 40px 120px rgba(0,0,0,0.35)",
-              padding: 28, color: "#fff", position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 28,
+              fontWeight: 700,
+              color: "#374151",
             }}
           >
-            <button
-              onClick={()=>{closeEmployeeModal()}}
-              aria-label="Close"
-              style={{
-                position: "absolute", top: 12, right: 12,
-                width: 36, height: 36, borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.04)", color: "#fff",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22 }}>
-              <div
-                style={{
-                  width: 88, height: 88, borderRadius: 22, overflow: "hidden",
-                  background: "rgba(255,255,255,0.1)", display: "grid",
-                  placeItems: "center", border: "1px solid rgba(255,255,255,0.18)",
-                }}
-              >
-                {employeePhoto ? (
-                  <img src={employeePhoto} alt="Employee" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 24, fontWeight: 700 }}>
-                    {attendanceDetails?.firstname?.[0] || "E"}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                  {attendanceDetails?.firstname + " " + attendanceDetails?.lastname || "Employee"}
-                </div>
-                <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
-                  {attendanceDetails?.username || "Code unavailable"}
-                </div>
-              </div>
-            </div>
-
-            {attendanceMessage && (
-              <div
-                style={{
-                  padding: "14px 18px", borderRadius: 18,
-                  background: attendanceResult?.success ? "rgba(34,197,94,0.16)" : "rgba(248,113,113,0.16)",
-                  border: `1px solid ${attendanceResult?.success ? "rgba(34,197,94,0.25)" : "rgba(248,113,113,0.25)"}`,
-                  color: attendanceResult?.success ? "#d1fae5" : "#fecaca",
-                  marginBottom: 20, fontSize: 14, lineHeight: 1.5,
-                }}
-              >
-                {attendanceMessage}
-              </div>
-            )}
-
-            <div style={{ display: "grid", gap: 14 }}>
-              {attendanceStatus === "PUNCH_IN" && (
-                <button onClick={() => sendPunchAction("PUNCH_IN")}
-                  style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #22c55e, #4ade80)", color: "#071c0a", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                  Punch In
-                </button>
-              )}
-              {attendanceStatus === "PUNCH_OUT" && (
-                <button onClick={() => sendPunchAction("PUNCH_OUT")}
-                  style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                  Punch Out
-                </button>
-              )}
-              {attendanceStatus === "COMPLETED" && (
-                <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "#fff", textAlign: "center", fontWeight: 600 }}>
-                  Attendance Already Marked Today
-                </div>
-              )}
-              {!attendanceStatus && (
-                <>
-                  <button onClick={() => sendPunchAction("PUNCH_IN")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #22c55e, #4ade80)", color: "#071c0a", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch In
-                  </button>
-                  <button onClick={() => sendPunchAction("PUNCH_OUT")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch Out
-                  </button>
-                </>
-              )}
-            </div>
+            {attendanceDetails?.firstname?.[0] || "E"}
           </div>
+        )}
+      </div>
+
+      <div>
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: 700,
+            color: "#111827",
+          }}
+        >
+          {attendanceDetails?.firstname} {attendanceDetails?.lastname}
         </div>
+
+        <div
+          style={{
+            color: "#6b7280",
+            marginTop: 4,
+            fontSize: 14,
+          }}
+        >
+          {attendanceDetails?.username}
+        </div>
+      </div>
+    </div>
+
+    {/* Message */}
+    {attendanceMessage && (
+      <div
+        style={{
+          margin: "0 28px 24px",
+          padding: "14px 16px",
+          borderRadius: 14,
+          background: attendanceResult?.success
+            ? "#ecfdf5"
+            : "#fef2f2",
+          border: attendanceResult?.success
+            ? "1px solid #bbf7d0"
+            : "1px solid #fecaca",
+          color: attendanceResult?.success
+            ? "#166534"
+            : "#991b1b",
+        }}
+      >
+        {attendanceMessage}
+      </div>
+    )}
+
+    {/* Actions */}
+    <div
+      style={{
+        padding: 28,
+        borderTop: "1px solid #e5e7eb",
+        display: "grid",
+        gap: 12,
+      }}
+    >
+      <button
+        onClick={() => sendPunchAction("PUNCH_IN")}
+        style={{
+          padding: "16px",
+          border: "none",
+          borderRadius: 14,
+          background: "#16a34a",
+          color: "#fff",
+          fontSize: 16,
+          fontWeight: 700,
+          cursor: "pointer",
+        }}
+      >
+        Punch In
+      </button>
+
+      <button
+        onClick={() => sendPunchAction("PUNCH_OUT")}
+        style={{
+          padding: "16px",
+          borderRadius: 14,
+          border: "1px solid #d1d5db",
+          background: "#fff",
+          color: "#111827",
+          fontSize: 16,
+          fontWeight: 700,
+          cursor: "pointer",
+        }}
+      >
+        Punch Out
+      </button>
+    </div>
+  </div>
+</div>
       )}
 
       {/* CAMERA */}
