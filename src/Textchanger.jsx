@@ -476,6 +476,37 @@ const resetSession = async () => {
 
 //   return () => clearInterval(watchdog);
 // }, []);
+
+
+useEffect(() => {
+  window.checkCamera = () => {
+    const video = videoRef.current;
+
+    if (!video) {
+      alert("❌ No video element");
+      return;
+    }
+
+    const track = video.srcObject?.getVideoTracks?.()[0];
+
+    alert(
+      JSON.stringify(
+        {
+          trackExists: !!track,
+          readyState: track?.readyState,
+          enabled: track?.enabled,
+          paused: video.paused,
+          ended: video.ended,
+          visibilityState: document.visibilityState,
+        },
+        null,
+        2
+      )
+    );
+  };
+
+  return () => delete window.checkCamera;
+}, []);
 const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
