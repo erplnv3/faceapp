@@ -92,15 +92,16 @@ const blockedFacesRef = useRef({});
 
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
-     setAttendanceResult({
-    success: true,
-    message: resultData.message || "Attendance Marked Successfully ✅",
-  });
+        setTimeout(() => {
+      // setEmployee(null);
+      // setAttendanceStatus(null);
+      // setAttendanceRecord(null);
+      // setAttendanceResult(null);
 
-  setTimeout(() => {
-    closeEmployeeModal();
-    resetSession();
-  }, 1500);
+      // lastMatchedRef.current = null;
+      // startVerification();   // ADD THIS
+        resetSession();
+    }, 1500);
   }
     };
 
@@ -398,86 +399,83 @@ const resetSession = async () => {
 //   return () => clearInterval(watchdog);
 // }, []);
 
-// const restartingCameraRef = useRef(false);
+const restartingCameraRef = useRef(false);
 
-// useEffect(() => {
-//   const watchdog = setInterval(async () => {
-//     try {
-//       const video = videoRef.current;
+useEffect(() => {
+  const watchdog = setInterval(async () => {
+    try {
+      const video = videoRef.current;
 
-//       if (!video) return;
+      if (!video) return;
 
-//       const track = video.srcObject?.getVideoTracks?.()[0];
+      const track = video.srcObject?.getVideoTracks?.()[0];
 
-//       console.log(
-//         "Camera Check:",
-//         track?.readyState,
-//         "paused:",
-//         video.paused,
-//         "ended:",
-//         video.ended
-//       );
+      console.log(
+        "Camera Check:",
+        track?.readyState,
+        "paused:",
+        video.paused,
+        "ended:",
+        video.ended
+      );
 
-//       const cameraDead =
-//         !track ||
-//         track.readyState !== "live" ||
-//         video.paused ||
-//         video.ended;
+      const cameraDead =
+        !track ||
+        track.readyState !== "live" ||
+        video.paused ||
+        video.ended;
 
-//       if (cameraDead && !restartingCameraRef.current) {
-//         restartingCameraRef.current = true;
+      if (cameraDead && !restartingCameraRef.current) {
+        restartingCameraRef.current = true;
 
-//         console.log("Camera offline. Restarting...");
+        console.log("Camera offline. Restarting...");
 
-//         if (verificationInterval.current) {
-//           clearInterval(verificationInterval.current);
-//           verificationInterval.current = null;
-//         }
+        if (verificationInterval.current) {
+          clearInterval(verificationInterval.current);
+          verificationInterval.current = null;
+        }
 
-//         try {
-//           // cleanup old stream
-//           if (video.srcObject) {
-//             video.srcObject
-//               .getTracks()
-//               .forEach((t) => t.stop());
+        try {
+          // cleanup old stream
+          if (video.srcObject) {
+            video.srcObject
+              .getTracks()
+              .forEach((t) => t.stop());
 
-//             video.srcObject = null;
-//           }
+            video.srcObject = null;
+          }
 
-//           const stream = await navigator.mediaDevices.getUserMedia({
-//             video: {
-//               width: { ideal: 640 },
-//               height: { ideal: 480 },
-//               facingMode: "user",
-//             },
-//           });
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+              facingMode: "user",
+            },
+          });
 
-//           video.srcObject = stream;
+          video.srcObject = stream;
 
-//           video.onloadeddata = () => {
-//             console.log("Camera restarted");
+          video.onloadeddata = () => {
+            console.log("Camera restarted");
 
-//             setIsVerifying(true);
-//             startVerification();
+            setIsVerifying(true);
+            startVerification();
 
-//             restartingCameraRef.current = false;
-//           };
-//         } catch (err) {
-//           console.log("Camera restart failed:", err);
-//           restartingCameraRef.current = false;
-//         }
-//       }
-//     } catch (err) {
-//       console.log("Camera watchdog error:", err);
-//       restartingCameraRef.current = false;
-//     }
-//   }, 5000);
+            restartingCameraRef.current = false;
+          };
+        } catch (err) {
+          console.log("Camera restart failed:", err);
+          restartingCameraRef.current = false;
+        }
+      }
+    } catch (err) {
+      console.log("Camera watchdog error:", err);
+      restartingCameraRef.current = false;
+    }
+  }, 5000);
 
-//   return () => clearInterval(watchdog);
-// }, []);
-
-
-
+  return () => clearInterval(watchdog);
+}, []);
 const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
@@ -502,15 +500,15 @@ const stopVerification = () => {
   };
 
   const closeEmployeeModal = () => {
+    alert("ok")
     setEmployee(null);
     setAttendanceStatus(null);
     setAttendanceRecord(null);
     setAttendanceResult(null);
     setMessage("");
-   setTimeout(() => {
     lastMatchedRef.current = null;
+    // ✅ Restart verification after closing modal
     startVerification();
-  }, 1000);
   };
 
   const employeePhoto =
