@@ -290,9 +290,28 @@ const result = await faceapi
       }
     }, 1000);
   };
-const resetSession = () => {
+// const resetSession = () => {
+//   setEmployee(null);
+//   alert("resetting")
+//   setAttendanceStatus(null);
+//   setAttendanceRecord(null);
+//   setAttendanceResult(null);
+//   setAttendanceDetails(null);
+
+//   setMultipleFaces(false);
+
+//   lastMatchedRef.current = null;
+
+//   setMessage("Verification Started");
+
+//   if (verificationInterval.current) {
+//     clearInterval(verificationInterval.current);
+//   }
+// setIsVerifying(true);
+//   startVerification();
+// };
+const resetSession = async () => {
   setEmployee(null);
-  alert("resetting")
   setAttendanceStatus(null);
   setAttendanceRecord(null);
   setAttendanceResult(null);
@@ -302,15 +321,40 @@ const resetSession = () => {
 
   lastMatchedRef.current = null;
 
-  setMessage("Verification Started");
+  setMessage("Restarting Camera...");
 
   if (verificationInterval.current) {
     clearInterval(verificationInterval.current);
   }
-setIsVerifying(true);
-  startVerification();
-};
-  const stopVerification = () => {
+
+  // Stop existing camera
+  if (videoRef.current?.srcObject) {
+    videoRef.current.srcObject
+      .getTracks()
+      .forEach(track => track.stop());
+
+    videoRef.current.srcObject = null;
+  }
+
+  // Start camera again
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      width: { ideal: 640 },
+      height: { ideal: 480 },
+      facingMode: "user",
+    },
+  });
+
+  if (videoRef.current) {
+    videoRef.current.srcObject = stream;
+
+    videoRef.current.onloadeddata = () => {
+      setIsVerifying(true);
+      startVerification();
+    };
+  }
+}; 
+const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
       verificationInterval.current = null;
