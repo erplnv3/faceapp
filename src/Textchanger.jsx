@@ -619,14 +619,59 @@ const stopVerification = () => {
               )}
               {!attendanceStatus && (
                 <>
-                  <button onClick={() => sendPunchAction("PUNCH_IN")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #22c55e, #4ade80)", color: "#071c0a", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch In
-                  </button>
-                  <button onClick={() => sendPunchAction("PUNCH_OUT")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch Out
-                  </button>
+                 <>
+  <button
+    onClick={() => sendPunchAction("PUNCH_IN")}
+    style={{
+      width: "100%",
+      padding: "18px 20px",
+      borderRadius: 16,
+      border: "none",
+      background: "linear-gradient(135deg, #22c55e, #4ade80)",
+      color: "#071c0a",
+      fontSize: 16,
+      fontWeight: 700,
+      cursor: "pointer",
+    }}
+  >
+    Punch In
+  </button>
+
+  <button
+    onClick={() => sendPunchAction("PUNCH_OUT")}
+    style={{
+      width: "100%",
+      padding: "18px 20px",
+      borderRadius: 16,
+      border: "1px solid rgba(255,255,255,0.18)",
+      background: "rgba(255,255,255,0.08)",
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: 700,
+      cursor: "pointer",
+    }}
+  >
+    Punch Out
+  </button>
+
+  <button
+    onClick={closeEmployeeModal}
+    style={{
+      width: "100%",
+      padding: "14px 20px",
+      borderRadius: 16,
+      border: "1px solid rgba(255,255,255,0.1)",
+      background: "transparent",
+      color: "rgba(255,255,255,0.7)",
+      fontSize: 14,
+      fontWeight: 600,
+      cursor: "pointer",
+      marginTop: 4,
+    }}
+  >
+    Close
+  </button>
+</>
                 </>
               )}
             </div>
