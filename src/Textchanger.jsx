@@ -501,14 +501,14 @@ const stopVerification = () => {
 
   const closeEmployeeModal = () => {
     // Alert("ok")
-    setEmployee(null);
-    setAttendanceStatus(null);
-    setAttendanceRecord(null);
-    setAttendanceResult(null);
-    setMessage("");
-    lastMatchedRef.current = null;
-    // ✅ Restart verification after closing modal
-    startVerification();
+    // setEmployee(null);
+    // setAttendanceStatus(null);
+    // setAttendanceRecord(null);
+    // setAttendanceResult(null);
+    // setMessage("");
+    // lastMatchedRef.current = null;
+    // // ✅ Restart verification after closing modal
+    // startVerification();
   };
 
   const employeePhoto =
