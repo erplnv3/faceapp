@@ -506,9 +506,9 @@ const stopVerification = () => {
     setAttendanceRecord(null);
     setAttendanceResult(null);
     setMessage("");
-    lastMatchedRef.current = null;
-    // ✅ Restart verification after closing modal
-    startVerification();
+    // lastMatchedRef.current = null;
+    // // ✅ Restart verification after closing modal
+    // startVerification();
   };
 
   const employeePhoto =
