@@ -93,14 +93,15 @@ const blockedFacesRef = useRef({});
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
         setTimeout(() => {
-      setEmployee(null);
-      setAttendanceStatus(null);
-      setAttendanceRecord(null);
-      setAttendanceResult(null);
+      // setEmployee(null);
+      // setAttendanceStatus(null);
+      // setAttendanceRecord(null);
+      // setAttendanceResult(null);
 
-      lastMatchedRef.current = null;
-      startVerification();   // ADD THIS
-    }, 2500);
+      // lastMatchedRef.current = null;
+      // startVerification();   // ADD THIS
+        resetSession();
+    }, 1500);
   }
     };
 
@@ -125,7 +126,13 @@ const blockedFacesRef = useRef({});
       return () => clearTimeout(timeout);
     }
   }, [attendanceResult]);
+useEffect(() => {
+  window.resetSession = resetSession;
 
+  return () => {
+    delete window.resetSession;
+  };
+}, []);
   // Init
   useEffect(() => {
     // ✅ receiveFaceData: store directly in ref, no localStorage
@@ -283,7 +290,25 @@ const result = await faceapi
       }
     }, 1000);
   };
+const resetSession = () => {
+  setEmployee(null);
+  setAttendanceStatus(null);
+  setAttendanceRecord(null);
+  setAttendanceResult(null);
+  setAttendanceDetails(null);
 
+  setMultipleFaces(false);
+
+  lastMatchedRef.current = null;
+
+  setMessage("Verification Started");
+
+  if (verificationInterval.current) {
+    clearInterval(verificationInterval.current);
+  }
+setIsVerifying(true);
+  startVerification();
+};
   const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
