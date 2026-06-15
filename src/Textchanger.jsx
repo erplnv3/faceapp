@@ -354,6 +354,53 @@ const resetSession = async () => {
     };
   }
 }; 
+// useEffect(() => {
+//   const watchdog = setInterval(async () => {
+//     try {
+//       const video = videoRef.current;
+
+//       if (!video) return;
+
+//       const track = video.srcObject?.getVideoTracks?.()[0];
+
+//       const cameraDead =
+//         !track ||
+//         track.readyState !== "live" ||
+//         video.paused ||
+//         video.ended;
+
+//       if (cameraDead) {
+//         console.log("Camera offline. Restarting...");
+
+//         if (verificationInterval.current) {
+//           clearInterval(verificationInterval.current);
+//         }
+
+//         const stream = await navigator.mediaDevices.getUserMedia({
+//           video: {
+//             width: { ideal: 640 },
+//             height: { ideal: 480 },
+//             facingMode: "user",
+//           },
+//         });
+
+//         video.srcObject = stream;
+
+//         video.onloadeddata = () => {
+//           console.log("Camera restarted");
+//           startVerification();
+//         };
+//       }
+//     } catch (err) {
+//       console.log("Camera watchdog error:", err);
+//     }
+//   }, 5000); // check every 5 sec
+
+//   return () => clearInterval(watchdog);
+// }, []);
+
+const restartingCameraRef = useRef(false);
+
 useEffect(() => {
   const watchdog = setInterval(async () => {
     try {
@@ -363,38 +410,69 @@ useEffect(() => {
 
       const track = video.srcObject?.getVideoTracks?.()[0];
 
+      console.log(
+        "Camera Check:",
+        track?.readyState,
+        "paused:",
+        video.paused,
+        "ended:",
+        video.ended
+      );
+
       const cameraDead =
         !track ||
         track.readyState !== "live" ||
         video.paused ||
         video.ended;
 
-      if (cameraDead) {
+      if (cameraDead && !restartingCameraRef.current) {
+        restartingCameraRef.current = true;
+
         console.log("Camera offline. Restarting...");
 
         if (verificationInterval.current) {
           clearInterval(verificationInterval.current);
+          verificationInterval.current = null;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 640 },
-            height: { ideal: 480 },
-            facingMode: "user",
-          },
-        });
+        try {
+          // cleanup old stream
+          if (video.srcObject) {
+            video.srcObject
+              .getTracks()
+              .forEach((t) => t.stop());
 
-        video.srcObject = stream;
+            video.srcObject = null;
+          }
 
-        video.onloadeddata = () => {
-          console.log("Camera restarted");
-          startVerification();
-        };
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+              facingMode: "user",
+            },
+          });
+
+          video.srcObject = stream;
+
+          video.onloadeddata = () => {
+            console.log("Camera restarted");
+
+            setIsVerifying(true);
+            startVerification();
+
+            restartingCameraRef.current = false;
+          };
+        } catch (err) {
+          console.log("Camera restart failed:", err);
+          restartingCameraRef.current = false;
+        }
       }
     } catch (err) {
       console.log("Camera watchdog error:", err);
+      restartingCameraRef.current = false;
     }
-  }, 5000); // check every 5 sec
+  }, 5000);
 
   return () => clearInterval(watchdog);
 }, []);
