@@ -479,34 +479,57 @@ const resetSession = async () => {
 
 
 useEffect(() => {
-  window.checkCamera = () => {
+  const watchdog = setInterval(async () => {
     const video = videoRef.current;
 
-    if (!video) {
-      alert("❌ No video element");
-      return;
-    }
+    if (!video) return;
 
     const track = video.srcObject?.getVideoTracks?.()[0];
 
-    alert(
-      JSON.stringify(
-        {
-          trackExists: !!track,
-          readyState: track?.readyState,
-          enabled: track?.enabled,
-          paused: video.paused,
-          ended: video.ended,
-          visibilityState: document.visibilityState,
-        },
-        null,
-        2
-      )
-    );
-  };
+    const cameraDead =
+      !track ||
+      track.readyState !== "live" ||
+      video.paused ||
+      video.ended;
 
-  return () => delete window.checkCamera;
+    if (!cameraDead) return;
+
+    console.log("WATCHDOG: Restarting camera");
+
+    try {
+      if (verificationInterval.current) {
+        clearInterval(verificationInterval.current);
+        verificationInterval.current = null;
+      }
+
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach((t) => t.stop());
+        video.srcObject = null;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: "user",
+        },
+      });
+
+      video.srcObject = stream;
+
+      video.onloadeddata = () => {
+        setIsVerifying(true);
+        startVerification();
+        setMessage("Camera recovered");
+      };
+    } catch (err) {
+      console.error("Watchdog restart failed", err);
+    }
+  }, 5000); // every 15 sec
+
+  return () => clearInterval(watchdog);
 }, []);
+
 const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
