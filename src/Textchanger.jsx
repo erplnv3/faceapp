@@ -525,7 +525,7 @@ useEffect(() => {
     } catch (err) {
       console.error("Watchdog restart failed", err);
     }
-  }, 5000); // every 15 sec
+  }, 1000); // every 15 sec
 
   return () => clearInterval(watchdog);
 }, []);
