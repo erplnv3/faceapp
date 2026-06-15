@@ -93,15 +93,14 @@ const blockedFacesRef = useRef({});
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
         setTimeout(() => {
-      // setEmployee(null);
-      // setAttendanceStatus(null);
-      // setAttendanceRecord(null);
-      // setAttendanceResult(null);
+      setEmployee(null);
+      setAttendanceStatus(null);
+      setAttendanceRecord(null);
+      setAttendanceResult(null);
 
-      // lastMatchedRef.current = null;
-      // startVerification();   // ADD THIS
-        resetSession();
-    }, 1500);
+      lastMatchedRef.current = null;
+      startVerification();   // ADD THIS
+    }, 2500);
   }
     };
 
@@ -126,13 +125,7 @@ const blockedFacesRef = useRef({});
       return () => clearTimeout(timeout);
     }
   }, [attendanceResult]);
-useEffect(() => {
-  window.resetSession = resetSession;
 
-  return () => {
-    delete window.resetSession;
-  };
-}, []);
   // Init
   useEffect(() => {
     // ✅ receiveFaceData: store directly in ref, no localStorage
@@ -290,193 +283,8 @@ const result = await faceapi
       }
     }, 1000);
   };
-// const resetSession = () => {
-//   setEmployee(null);
-//   alert("resetting")
-//   setAttendanceStatus(null);
-//   setAttendanceRecord(null);
-//   setAttendanceResult(null);
-//   setAttendanceDetails(null);
 
-//   setMultipleFaces(false);
-
-//   lastMatchedRef.current = null;
-
-//   setMessage("Verification Started");
-
-//   if (verificationInterval.current) {
-//     clearInterval(verificationInterval.current);
-//   }
-// setIsVerifying(true);
-//   startVerification();
-// };
-const resetSession = async () => {
-  setEmployee(null);
-  setAttendanceStatus(null);
-  setAttendanceRecord(null);
-  setAttendanceResult(null);
-  setAttendanceDetails(null);
-
-  setMultipleFaces(false);
-
-  lastMatchedRef.current = null;
-
-  setMessage("Restarting Camera...");
-
-  if (verificationInterval.current) {
-    clearInterval(verificationInterval.current);
-  }
-
-  // Stop existing camera
-  if (videoRef.current?.srcObject) {
-    videoRef.current.srcObject
-      .getTracks()
-      .forEach(track => track.stop());
-
-    videoRef.current.srcObject = null;
-  }
-
-  // Start camera again
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: {
-      width: { ideal: 640 },
-      height: { ideal: 480 },
-      facingMode: "user",
-    },
-  });
-
-  if (videoRef.current) {
-    videoRef.current.srcObject = stream;
-
-    videoRef.current.onloadeddata = () => {
-      setIsVerifying(true);
-      startVerification();
-    };
-  }
-}; 
-// useEffect(() => {
-//   const watchdog = setInterval(async () => {
-//     try {
-//       const video = videoRef.current;
-
-//       if (!video) return;
-
-//       const track = video.srcObject?.getVideoTracks?.()[0];
-
-//       const cameraDead =
-//         !track ||
-//         track.readyState !== "live" ||
-//         video.paused ||
-//         video.ended;
-
-//       if (cameraDead) {
-//         console.log("Camera offline. Restarting...");
-
-//         if (verificationInterval.current) {
-//           clearInterval(verificationInterval.current);
-//         }
-
-//         const stream = await navigator.mediaDevices.getUserMedia({
-//           video: {
-//             width: { ideal: 640 },
-//             height: { ideal: 480 },
-//             facingMode: "user",
-//           },
-//         });
-
-//         video.srcObject = stream;
-
-//         video.onloadeddata = () => {
-//           console.log("Camera restarted");
-//           startVerification();
-//         };
-//       }
-//     } catch (err) {
-//       console.log("Camera watchdog error:", err);
-//     }
-//   }, 5000); // check every 5 sec
-
-//   return () => clearInterval(watchdog);
-// }, []);
-
-const restartingCameraRef = useRef(false);
-
-useEffect(() => {
-  const watchdog = setInterval(async () => {
-    try {
-      const video = videoRef.current;
-
-      if (!video) return;
-
-      const track = video.srcObject?.getVideoTracks?.()[0];
-
-      console.log(
-        "Camera Check:",
-        track?.readyState,
-        "paused:",
-        video.paused,
-        "ended:",
-        video.ended
-      );
-
-      const cameraDead =
-        !track ||
-        track.readyState !== "live" ||
-        video.paused ||
-        video.ended;
-
-      if (cameraDead && !restartingCameraRef.current) {
-        restartingCameraRef.current = true;
-
-        console.log("Camera offline. Restarting...");
-
-        if (verificationInterval.current) {
-          clearInterval(verificationInterval.current);
-          verificationInterval.current = null;
-        }
-
-        try {
-          // cleanup old stream
-          if (video.srcObject) {
-            video.srcObject
-              .getTracks()
-              .forEach((t) => t.stop());
-
-            video.srcObject = null;
-          }
-
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              width: { ideal: 640 },
-              height: { ideal: 480 },
-              facingMode: "user",
-            },
-          });
-
-          video.srcObject = stream;
-
-          video.onloadeddata = () => {
-            console.log("Camera restarted");
-
-            setIsVerifying(true);
-            startVerification();
-
-            restartingCameraRef.current = false;
-          };
-        } catch (err) {
-          console.log("Camera restart failed:", err);
-          restartingCameraRef.current = false;
-        }
-      }
-    } catch (err) {
-      console.log("Camera watchdog error:", err);
-      restartingCameraRef.current = false;
-    }
-  }, 5000);
-
-  return () => clearInterval(watchdog);
-}, []);
-const stopVerification = () => {
+  const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
       verificationInterval.current = null;
@@ -500,7 +308,6 @@ const stopVerification = () => {
   };
 
   const closeEmployeeModal = () => {
-    Alert("ok")
     setEmployee(null);
     setAttendanceStatus(null);
     setAttendanceRecord(null);
@@ -669,41 +476,23 @@ const stopVerification = () => {
           <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, letterSpacing: "-0.01em" }}>FaceID Attendance</span>
         </div>
 
-        {/* <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: loading ? "rgba(100,116,139,0.3)" : "rgba(22, 163, 74, 0.7)", border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`, color: loading ? "#94a3b8" : "#4ade80", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: loading ? "rgba(100,116,139,0.3)" : "rgba(22,163,74,0.2)", border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`, color: loading ? "#94a3b8" : "#4ade80", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
             {loading ? "Loading" : "Models Ready"}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: isVerifying ? "rgba(37,99,235,0.25)" : "rgba(100,116,139,0.2)", border: `1px solid ${isVerifying ? "rgba(96,165,250,0.4)" : "rgba(100,116,139,0.3)"}`, color: isVerifying ? "#93c5fd" : "#64748b", padding: "5px 10px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
             {isVerifying ? "Verifying" : "Standby"}
           </div>
-        </div> */}
+        </div>
 
-       <div
-  style={{
-    color: "rgba(255,255,255,0.45)",
-    fontSize: 13,
-    fontWeight: 500,
-    letterSpacing: "0.02em",
-  }}
->
-  {currentTime.toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })}
-  {" • "}
-  {currentTime.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  })}
-</div>
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 500, letterSpacing: "0.02em" }}>
+          {currentTime.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+        </div>
       </div>
 
       {/* LEFT PANEL */}
-      {/* <div style={{ position: "absolute", top: "50%", left: 40, transform: "translateY(-50%)", width: 220, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}> */}
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "18px 20px", backdropFilter: "blur(16px)" }}>
+      <div style={{ position: "absolute", top: "50%", left: 40, transform: "translateY(-50%)", width: 220, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
+        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "18px 20px", backdropFilter: "blur(16px)" }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Today's Date</div>
           <div style={{ color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>{currentTime.getDate()}</div>
           <div style={{ color: "#60a5fa", fontSize: 13, fontWeight: 600, marginTop: 8 }}>
@@ -715,9 +504,9 @@ const stopVerification = () => {
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
             Attendance tracking active today
           </div>
-        </div> */}
+        </div>
 
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em" }}>Local Time</div>
           <div style={{ color: "#fff", fontSize: 29, fontWeight: 700, lineHeight: 1 }}>
             {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
@@ -725,9 +514,9 @@ const stopVerification = () => {
           <div style={{ width: 40, height: 2, borderRadius: 99, background: "linear-gradient(90deg, #3b82f6, #60a5fa)", margin: "4px 0" }} />
           <div style={{ color: "#93c5fd", fontSize: 15, fontWeight: 600 }}>{greeting}</div>
           <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Reception • Device #01</div>
-        </div> */}
+        </div>
 
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
             <circle cx="12" cy="10" r="3"/>
@@ -736,8 +525,8 @@ const stopVerification = () => {
             <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Reception</div>
             <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #01</div>
           </div>
-        </div> */}
-      {/* </div> */}
+        </div>
+      </div>
 
       {/* FACE GUIDE */}
       <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 5 }}>
@@ -761,7 +550,7 @@ const stopVerification = () => {
       </div>
 
       {/* RIGHT PANEL */}
-      {/* <div style={{ position: "absolute", top: "50%", right: 40, transform: "translateY(-50%)", width: 230, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
+      <div style={{ position: "absolute", top: "50%", right: 40, transform: "translateY(-50%)", width: 230, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
         <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)" }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
             System Status
@@ -773,7 +562,7 @@ const stopVerification = () => {
             </div>
           ))}
         </div>
-      </div> */}
+      </div>
 
       {/* RESULT BAR */}
       <div
