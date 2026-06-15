@@ -93,14 +93,14 @@ const blockedFacesRef = useRef({});
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
         setTimeout(() => {
-      // setEmployee(null);
-      // setAttendanceStatus(null);
-      // setAttendanceRecord(null);
-      // setAttendanceResult(null);
+      setEmployee(null);
+      setAttendanceStatus(null);
+      setAttendanceRecord(null);
+      setAttendanceResult(null);
 
-      // lastMatchedRef.current = null;
-      // startVerification();   // ADD THIS
-        resetSession();
+      lastMatchedRef.current = null;
+      startVerification();   // ADD THIS
+        // resetSession();
     }, 1500);
   }
     };
@@ -126,13 +126,13 @@ const blockedFacesRef = useRef({});
       return () => clearTimeout(timeout);
     }
   }, [attendanceResult]);
-useEffect(() => {
-  window.resetSession = resetSession;
+// useEffect(() => {
+//   window.resetSession = resetSession;
 
-  return () => {
-    delete window.resetSession;
-  };
-}, []);
+//   return () => {
+//     delete window.resetSession;
+//   };
+// }, []);
   // Init
   useEffect(() => {
     // ✅ receiveFaceData: store directly in ref, no localStorage
@@ -506,9 +506,9 @@ const stopVerification = () => {
     setAttendanceRecord(null);
     setAttendanceResult(null);
     setMessage("");
-    // lastMatchedRef.current = null;
-    // // ✅ Restart verification after closing modal
-    // startVerification();
+    lastMatchedRef.current = null;
+    // ✅ Restart verification after closing modal
+    startVerification();
   };
 
   const employeePhoto =
