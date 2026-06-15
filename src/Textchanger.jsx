@@ -97,9 +97,9 @@ const blockedFacesRef = useRef({});
       setAttendanceStatus(null);
       setAttendanceRecord(null);
       setAttendanceResult(null);
-
-      lastMatchedRef.current = null;
-      startVerification();   // ADD THIS
+closeEmployeeModal()
+      // lastMatchedRef.current = null;
+      // startVerification();   // ADD THIS
         // resetSession();
     }, 1500);
   }
