@@ -354,6 +354,50 @@ const resetSession = async () => {
     };
   }
 }; 
+useEffect(() => {
+  const watchdog = setInterval(async () => {
+    try {
+      const video = videoRef.current;
+
+      if (!video) return;
+
+      const track = video.srcObject?.getVideoTracks?.()[0];
+
+      const cameraDead =
+        !track ||
+        track.readyState !== "live" ||
+        video.paused ||
+        video.ended;
+
+      if (cameraDead) {
+        console.log("Camera offline. Restarting...");
+
+        if (verificationInterval.current) {
+          clearInterval(verificationInterval.current);
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: "user",
+          },
+        });
+
+        video.srcObject = stream;
+
+        video.onloadeddata = () => {
+          console.log("Camera restarted");
+          startVerification();
+        };
+      }
+    } catch (err) {
+      console.log("Camera watchdog error:", err);
+    }
+  }, 5000); // check every 5 sec
+
+  return () => clearInterval(watchdog);
+}, []);
 const stopVerification = () => {
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
