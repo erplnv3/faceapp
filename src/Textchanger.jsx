@@ -491,8 +491,8 @@ const result = await faceapi
       </div>
 
       {/* LEFT PANEL */}
-      <div style={{ position: "absolute", top: "50%", left: 40, transform: "translateY(-50%)", width: 220, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
-        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "18px 20px", backdropFilter: "blur(16px)" }}>
+      {/* <div style={{ position: "absolute", top: "50%", left: 40, transform: "translateY(-50%)", width: 220, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}> */}
+        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "18px 20px", backdropFilter: "blur(16px)" }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Today's Date</div>
           <div style={{ color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>{currentTime.getDate()}</div>
           <div style={{ color: "#60a5fa", fontSize: 13, fontWeight: 600, marginTop: 8 }}>
@@ -504,9 +504,9 @@ const result = await faceapi
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
             Attendance tracking active today
           </div>
-        </div>
+        </div> */}
 
-        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", gap: 8 }}>
+        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em" }}>Local Time</div>
           <div style={{ color: "#fff", fontSize: 29, fontWeight: 700, lineHeight: 1 }}>
             {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
@@ -514,9 +514,9 @@ const result = await faceapi
           <div style={{ width: 40, height: 2, borderRadius: 99, background: "linear-gradient(90deg, #3b82f6, #60a5fa)", margin: "4px 0" }} />
           <div style={{ color: "#93c5fd", fontSize: 15, fontWeight: 600 }}>{greeting}</div>
           <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Reception • Device #01</div>
-        </div>
+        </div> */}
 
-        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", gap: 10 }}>
+        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
             <circle cx="12" cy="10" r="3"/>
@@ -525,8 +525,8 @@ const result = await faceapi
             <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Reception</div>
             <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #01</div>
           </div>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* FACE GUIDE */}
       <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 5 }}>
