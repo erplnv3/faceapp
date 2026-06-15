@@ -500,7 +500,7 @@ const stopVerification = () => {
   };
 
   const closeEmployeeModal = () => {
-    // Alert("ok")
+    alert("ok")
     // setEmployee(null);
     // setAttendanceStatus(null);
     // setAttendanceRecord(null);
