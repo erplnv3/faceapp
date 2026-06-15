@@ -1,25 +1,22 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as faceapi from "face-api.js";
+import Swal from "sweetalert2";
 
 function Textchanger() {
   const videoRef = useRef(null);
   const verificationInterval = useRef(null);
-  const registeredFacesRef = useRef([]); 
-const blockedFacesRef = useRef({});
+  const registeredFacesRef = useRef([]);
+  const blockedFacesRef = useRef({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [employee, setEmployee] = useState(null);
-  const [attendanceStatus, setAttendanceStatus] = useState(null);
-  const [attendanceRecord, setAttendanceRecord] = useState(null);
-  const [attendanceResult, setAttendanceResult] = useState(null);
   const [multipleFaces, setMultipleFaces] = useState(false);
-  const [attendanceDetails, setAttendanceDetails] = useState(null);
-  const [faceCount, setFaceCount] = useState(0);  
+  const [faceCount, setFaceCount] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const lastMatchedRef = useRef(null);
+  const currentEmployeeRef = useRef(null);
 
-  // ✅ systemStatus uses faceCount state, no localStorage on every render
+  // systemStatus uses faceCount state, no localStorage on every render
   const systemStatus = useMemo(() => [
     {
       label: loading ? "Loading Face Models" : "Face Models Ready",
@@ -64,84 +61,120 @@ const blockedFacesRef = useRef({});
     const handleEmployeeMatched = (event) => {
       const payload = parseEventDetail(event.detail);
       if (!payload) return;
-      setEmployee(payload.employee || payload);
-      setAttendanceDetails(payload.employee);
-      setAttendanceStatus(payload.attendanceStatus || null);
-      setAttendanceRecord(payload.attendanceRecord || null);
-      setAttendanceResult(null);
-
-      if (payload.attendanceStatus === "COMPLETED") setMessage("Attendance Already Marked Today");
-      else if (payload.attendanceStatus === "PUNCH_IN") setMessage("Employee matched — ready to Punch In");
-      else if (payload.attendanceStatus === "PUNCH_OUT") setMessage("Employee matched — ready to Punch Out");
-      else setMessage("Employee matched. Please select Punch In or Punch Out.");
+      
+      const emp = payload.employee || payload;
+      currentEmployeeRef.current = emp;
+      
+      // Stop verification while showing Swal
+      if (verificationInterval.current) {
+        clearInterval(verificationInterval.current);
+        verificationInterval.current = null;
+      }
+      
+      let title = `${emp.firstname || ""} ${emp.lastname || ""}`.trim() || "Employee Found";
+      let statusMessage = "";
+      let confirmText = "";
+      
+      if (payload.attendanceStatus === "COMPLETED") {
+        statusMessage = "Attendance Already Marked Today";
+        confirmText = "OK";
+      } else if (payload.attendanceStatus === "PUNCH_IN") {
+        statusMessage = "Ready for Punch In";
+        confirmText = "Punch In";
+      } else if (payload.attendanceStatus === "PUNCH_OUT") {
+        statusMessage = "Ready for Punch Out";
+        confirmText = "Punch Out";
+      } else {
+        statusMessage = "Please select action";
+        confirmText = "Continue";
+      }
+      
+      Swal.fire({
+        title: title,
+        text: statusMessage,
+        imageUrl: emp.photo || emp.photoUrl || emp.avatar || emp.profileImage || emp.image,
+        imageWidth: 120,
+        imageHeight: 120,
+        imageAlt: `${emp.firstname} ${emp.lastname}`,
+        showCancelButton: payload.attendanceStatus !== "COMPLETED",
+        confirmButtonText: confirmText,
+        cancelButtonText: "Close",
+        backdrop: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then((result) => {
+        if (result.isConfirmed && payload.attendanceStatus !== "COMPLETED") {
+          // Send punch action
+          const employeeCode = emp?.employeeCode || emp?.code ||
+            emp?.employeeId || emp?.id || emp?.empCode || null;
+          
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({ 
+                type: payload.attendanceStatus === "PUNCH_OUT" ? "PUNCH_OUT" : "PUNCH_IN", 
+                employeeId: employeeCode 
+              })
+            );
+            setMessage(`Sending ${payload.attendanceStatus === "PUNCH_OUT" ? "Punch Out" : "Punch In"} request...`);
+          } else {
+            setMessage("Unable to send action to native host.");
+            resetSession();
+          }
+        } else {
+          resetSession();
+        }
+      });
     };
 
     const handleAttendanceResult = (event) => {
       const resultData = parseEventDetail(event.detail);
       if (!resultData) return;
-      setAttendanceResult(resultData);
+      
       setMessage(resultData.message || "Attendance update received.");
-      // if (resultData.success) {
-      //   setTimeout(() => {
-      //     setEmployee(null);
-      //     setAttendanceStatus(null);
-      //     setAttendanceRecord(null);
-      //   }, 1400);
-      // }
-       if (resultData.success) {
-
-     blockedFacesRef.current[lastMatchedRef.current] = Date.now();
-
-        setTimeout(() => {
-      // setEmployee(null);
-      // setAttendanceStatus(null);
-      // setAttendanceRecord(null);
-      // setAttendanceResult(null);
-
-      // lastMatchedRef.current = null;
-      // startVerification();   // ADD THIS
-        resetSession();
-    }, 1500);
-  }
+      
+      if (resultData.success) {
+        blockedFacesRef.current[currentEmployeeRef.current?.employeeCode || currentEmployeeRef.current?.id] = Date.now();
+        
+        Swal.fire({
+          icon: "success",
+          title: "Attendance Marked",
+          text: resultData.message || "Success!",
+          timer: 1500,
+          showConfirmButton: false,
+          backdrop: true,
+        }).then(() => {
+          resetSession();
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: resultData.message || "Attendance marking failed",
+          confirmButtonText: "OK",
+          backdrop: true,
+        }).then(() => {
+          resetSession();
+        });
+      }
     };
 
     window.addEventListener("employeeMatched", handleEmployeeMatched);
     window.addEventListener("attendanceResult", handleAttendanceResult);
+    
     return () => {
       window.removeEventListener("employeeMatched", handleEmployeeMatched);
       window.removeEventListener("attendanceResult", handleAttendanceResult);
     };
   }, []);
 
-  // Auto-clear after successful attendance
-  useEffect(() => {
-    if (attendanceResult?.success) {
-      const timeout = setTimeout(() => {
-        setEmployee(null);
-        setAttendanceStatus(null);
-        setAttendanceRecord(null);
-        setAttendanceResult(null);
-        setMessage("");
-      }, 2500);
-      return () => clearTimeout(timeout);
-    }
-  }, [attendanceResult]);
-useEffect(() => {
-  window.resetSession = resetSession;
-
-  return () => {
-    delete window.resetSession;
-  };
-}, []);
   // Init
   useEffect(() => {
-    // ✅ receiveFaceData: store directly in ref, no localStorage
     window.receiveFaceData = (faces) => {
       try {
         console.log("DATA RECEIVED FROM REACT NATIVE — TOTAL:", faces.length);
         const converted = faces.map((item) => ({
           name: item.employeeid,
-          descriptor: new Float32Array( // ✅ Pre-converted once here
+          descriptor: new Float32Array(
             String(item.faceembedding).split(",").map(Number)
           ),
         }));
@@ -175,15 +208,16 @@ useEffect(() => {
       ]);
       console.timeEnd("MODEL_LOAD");
 
-      const stream = await navigator.mediaDevices.getUserMedia({  video: {
-    width: { ideal: 640 },
-    height: { ideal: 480 },
-    facingMode: "user",
-  }, });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: "user",
+        },
+      });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // ✅ Wait for video to actually have frames before starting
         videoRef.current.onloadeddata = () => {
           setLoading(false);
           setMessage("Models Loaded");
@@ -210,30 +244,24 @@ useEffect(() => {
 
         if (!videoRef.current) return;
 
-        // ✅ Single neural net pass — detection + descriptor together
-        // const result = await faceapi
-        //   // .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-        //    .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 }))
-        //   .withFaceLandmarks()
-        //   .withFaceDescriptor();
-const result = await faceapi
-  .detectSingleFace(
-    videoRef.current,
-    new faceapi.TinyFaceDetectorOptions({
-      inputSize: 160,
-      // inputSize: 64,
-      scoreThreshold: 0.5,
-    })
-  )
-  .withFaceLandmarks()
-  .withFaceDescriptor();
+        const result = await faceapi
+          .detectSingleFace(
+            videoRef.current,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 160,
+              scoreThreshold: 0.5,
+            })
+          )
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+
         if (!result) {
           setMultipleFaces(false);
           setMessage("No Face Detected");
           return;
         }
 
-        // ✅ Oval check using the same result — no second pass
+        // Oval check using the same result — no second pass
         const { x, y, width, height } = result.detection.box;
         const vw = videoRef.current.videoWidth;
         const vh = videoRef.current.videoHeight;
@@ -249,7 +277,6 @@ const result = await faceapi
 
         setMultipleFaces(false);
 
-        // ✅ Descriptors already Float32Array — no conversion here
         let bestMatch = null;
         let bestDistance = 999;
 
@@ -262,18 +289,12 @@ const result = await faceapi
         }
 
         if (bestDistance < 0.45) {
-
-
- const blockedAt = blockedFacesRef.current[bestMatch];
-
-  if (
-    blockedAt &&
-    Date.now() - blockedAt < 5 * 60 * 1000
-  ) {
-    setMessage(` Recently processed`);
-    return;
-  }
-
+          const blockedAt = blockedFacesRef.current[bestMatch];
+          
+          if (blockedAt && Date.now() - blockedAt < 5 * 60 * 1000) {
+            setMessage(`Recently processed`);
+            return;
+          }
 
           if (lastMatchedRef.current !== bestMatch) {
             lastMatchedRef.current = bestMatch;
@@ -290,349 +311,124 @@ const result = await faceapi
       }
     }, 1000);
   };
-// const resetSession = () => {
-//   setEmployee(null);
-//   alert("resetting")
-//   setAttendanceStatus(null);
-//   setAttendanceRecord(null);
-//   setAttendanceResult(null);
-//   setAttendanceDetails(null);
 
-//   setMultipleFaces(false);
-
-//   lastMatchedRef.current = null;
-
-//   setMessage("Verification Started");
-
-//   if (verificationInterval.current) {
-//     clearInterval(verificationInterval.current);
-//   }
-// setIsVerifying(true);
-//   startVerification();
-// };
-const resetSession = async () => {
-  setEmployee(null);
-  setAttendanceStatus(null);
-  setAttendanceRecord(null);
-  setAttendanceResult(null);
-  setAttendanceDetails(null);
-
-  setMultipleFaces(false);
-
-  lastMatchedRef.current = null;
-
-  setMessage("Restarting Camera...");
-
-  if (verificationInterval.current) {
-    clearInterval(verificationInterval.current);
-  }
-
-  // Stop existing camera
-  if (videoRef.current?.srcObject) {
-    videoRef.current.srcObject
-      .getTracks()
-      .forEach(track => track.stop());
-
-    videoRef.current.srcObject = null;
-  }
-
-  // Start camera again
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: {
-      width: { ideal: 640 },
-      height: { ideal: 480 },
-      facingMode: "user",
-    },
-  });
-
-  if (videoRef.current) {
-    videoRef.current.srcObject = stream;
-
-    videoRef.current.onloadeddata = () => {
-      setIsVerifying(true);
-      startVerification();
-    };
-  }
-}; 
-// useEffect(() => {
-//   const watchdog = setInterval(async () => {
-//     try {
-//       const video = videoRef.current;
-
-//       if (!video) return;
-
-//       const track = video.srcObject?.getVideoTracks?.()[0];
-
-//       const cameraDead =
-//         !track ||
-//         track.readyState !== "live" ||
-//         video.paused ||
-//         video.ended;
-
-//       if (cameraDead) {
-//         console.log("Camera offline. Restarting...");
-
-//         if (verificationInterval.current) {
-//           clearInterval(verificationInterval.current);
-//         }
-
-//         const stream = await navigator.mediaDevices.getUserMedia({
-//           video: {
-//             width: { ideal: 640 },
-//             height: { ideal: 480 },
-//             facingMode: "user",
-//           },
-//         });
-
-//         video.srcObject = stream;
-
-//         video.onloadeddata = () => {
-//           console.log("Camera restarted");
-//           startVerification();
-//         };
-//       }
-//     } catch (err) {
-//       console.log("Camera watchdog error:", err);
-//     }
-//   }, 5000); // check every 5 sec
-
-//   return () => clearInterval(watchdog);
-// }, []);
-
-const restartingCameraRef = useRef(false);
-
-useEffect(() => {
-  const watchdog = setInterval(async () => {
-    try {
-      const video = videoRef.current;
-
-      if (!video) return;
-
-      const track = video.srcObject?.getVideoTracks?.()[0];
-
-      console.log(
-        "Camera Check:",
-        track?.readyState,
-        "paused:",
-        video.paused,
-        "ended:",
-        video.ended
-      );
-
-      const cameraDead =
-        !track ||
-        track.readyState !== "live" ||
-        video.paused ||
-        video.ended;
-
-      if (cameraDead && !restartingCameraRef.current) {
-        restartingCameraRef.current = true;
-
-        console.log("Camera offline. Restarting...");
-
-        if (verificationInterval.current) {
-          clearInterval(verificationInterval.current);
-          verificationInterval.current = null;
-        }
-
-        try {
-          // cleanup old stream
-          if (video.srcObject) {
-            video.srcObject
-              .getTracks()
-              .forEach((t) => t.stop());
-
-            video.srcObject = null;
-          }
-
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              width: { ideal: 640 },
-              height: { ideal: 480 },
-              facingMode: "user",
-            },
-          });
-
-          video.srcObject = stream;
-
-          video.onloadeddata = () => {
-            console.log("Camera restarted");
-
-            setIsVerifying(true);
-            startVerification();
-
-            restartingCameraRef.current = false;
-          };
-        } catch (err) {
-          console.log("Camera restart failed:", err);
-          restartingCameraRef.current = false;
-        }
-      }
-    } catch (err) {
-      console.log("Camera watchdog error:", err);
-      restartingCameraRef.current = false;
-    }
-  }, 5000);
-
-  return () => clearInterval(watchdog);
-}, []);
-const stopVerification = () => {
+  const resetSession = async () => {
+    currentEmployeeRef.current = null;
+    lastMatchedRef.current = null;
+    setMessage("Restarting Camera...");
+    
     if (verificationInterval.current) {
       clearInterval(verificationInterval.current);
       verificationInterval.current = null;
     }
-    setIsVerifying(false);
-    setMessage("Verification Stopped");
+    
+    // Stop existing camera
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject
+        .getTracks()
+        .forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    
+    // Start camera again
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: "user",
+        },
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadeddata = () => {
+          setIsVerifying(true);
+          startVerification();
+        };
+      }
+    } catch (err) {
+      console.error("Camera restart failed:", err);
+      setMessage("Camera restart failed");
+    }
   };
 
-  const sendPunchAction = (action) => {
-    if (!employee) { setMessage("No employee selected."); return; }
-    if (!window.ReactNativeWebView) { setMessage("Unable to send action to native host."); return; }
+  const restartingCameraRef = useRef(false);
 
-    const employeeCode =
-      employee?.employeeCode || employee?.code ||
-      employee?.employeeId || employee?.id || employee?.empCode || null;
-
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({ type: action, employeeId: employeeCode })
-    );
-    setMessage(`Sending ${action.replace("_", " ")} request...`);
-  };
-
-  const closeEmployeeModal = () => {
-    alert("ok")
-    // setEmployee(null);
-    // setAttendanceStatus(null);
-    // setAttendanceRecord(null);
-    // setAttendanceResult(null);
-    // setMessage("");
-    // lastMatchedRef.current = null;
-    // // ✅ Restart verification after closing modal
-    // startVerification();
-  };
-
-  const employeePhoto =
-    employee?.photo || employee?.photoUrl || employee?.avatar ||
-    employee?.profileImage || employee?.image;
-
-  const attendanceMessage =
-    attendanceResult?.message ||
-    (attendanceResult ? "Attendance action completed." : "");
+  // Camera watchdog
+  useEffect(() => {
+    const watchdog = setInterval(async () => {
+      try {
+        const video = videoRef.current;
+        
+        if (!video) return;
+        
+        const track = video.srcObject?.getVideoTracks?.()[0];
+        
+        console.log(
+          "Camera Check:",
+          track?.readyState,
+          "paused:",
+          video.paused,
+          "ended:",
+          video.ended
+        );
+        
+        const cameraDead =
+          !track ||
+          track.readyState !== "live" ||
+          video.paused ||
+          video.ended;
+        
+        if (cameraDead && !restartingCameraRef.current && !currentEmployeeRef.current) {
+          restartingCameraRef.current = true;
+          console.log("Camera offline. Restarting...");
+          
+          if (verificationInterval.current) {
+            clearInterval(verificationInterval.current);
+            verificationInterval.current = null;
+          }
+          
+          try {
+            if (video.srcObject) {
+              video.srcObject
+                .getTracks()
+                .forEach((t) => t.stop());
+              video.srcObject = null;
+            }
+            
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "user",
+              },
+            });
+            
+            video.srcObject = stream;
+            
+            video.onloadeddata = () => {
+              console.log("Camera restarted");
+              setIsVerifying(true);
+              startVerification();
+              restartingCameraRef.current = false;
+            };
+          } catch (err) {
+            console.log("Camera restart failed:", err);
+            restartingCameraRef.current = false;
+          }
+        }
+      } catch (err) {
+        console.log("Camera watchdog error:", err);
+        restartingCameraRef.current = false;
+      }
+    }, 5000);
+    
+    return () => clearInterval(watchdog);
+  }, []);
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      {/* EMPLOYEE MODAL */}
-      {employee && (
-        <div
-          style={{
-            position: "absolute", inset: 0, zIndex: 80,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(0,0,0,0.55)", padding: 24,
-          }}
-        >
-          <div
-            style={{
-              width: "100%", maxWidth: 560, borderRadius: 28,
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              backdropFilter: "blur(28px)",
-              boxShadow: "0 40px 120px rgba(0,0,0,0.35)",
-              padding: 28, color: "#fff", position: "relative",
-            }}
-          >
-            <button
-              onClick={()=>{closeEmployeeModal()}}
-              aria-label="Close"
-              style={{
-                position: "absolute", top: 12, right: 12,
-                width: 36, height: 36, borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.04)", color: "#fff",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22 }}>
-              <div
-                style={{
-                  width: 88, height: 88, borderRadius: 22, overflow: "hidden",
-                  background: "rgba(255,255,255,0.1)", display: "grid",
-                  placeItems: "center", border: "1px solid rgba(255,255,255,0.18)",
-                }}
-              >
-                {employeePhoto ? (
-                  <img src={employeePhoto} alt="Employee" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 24, fontWeight: 700 }}>
-                    {attendanceDetails?.firstname?.[0] || "E"}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                  {attendanceDetails?.firstname + " " + attendanceDetails?.lastname || "Employee"}
-                </div>
-                <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 13 }}>
-                  {attendanceDetails?.username || "Code unavailable"}
-                </div>
-              </div>
-            </div>
-
-            {attendanceMessage && (
-              <div
-                style={{
-                  padding: "14px 18px", borderRadius: 18,
-                  background: attendanceResult?.success ? "rgba(34,197,94,0.16)" : "rgba(248,113,113,0.16)",
-                  border: `1px solid ${attendanceResult?.success ? "rgba(34,197,94,0.25)" : "rgba(248,113,113,0.25)"}`,
-                  color: attendanceResult?.success ? "#d1fae5" : "#fecaca",
-                  marginBottom: 20, fontSize: 14, lineHeight: 1.5,
-                }}
-              >
-                {attendanceMessage}
-              </div>
-            )}
-
-            <div style={{ display: "grid", gap: 14 }}>
-              {attendanceStatus === "PUNCH_IN" && (
-                <button onClick={() => sendPunchAction("PUNCH_IN")}
-                  style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #22c55e, #4ade80)", color: "#071c0a", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                  Punch In
-                </button>
-              )}
-              {attendanceStatus === "PUNCH_OUT" && (
-                <button onClick={() => sendPunchAction("PUNCH_OUT")}
-                  style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                  Punch Out
-                </button>
-              )}
-              {attendanceStatus === "COMPLETED" && (
-                <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "#fff", textAlign: "center", fontWeight: 600 }}>
-                  Attendance Already Marked Today
-                </div>
-              )}
-              {!attendanceStatus && (
-                <>
-                  <button onClick={() => sendPunchAction("PUNCH_IN")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #22c55e, #4ade80)", color: "#071c0a", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch In
-                  </button>
-                  <button onClick={() => sendPunchAction("PUNCH_OUT")}
-                    style={{ width: "100%", padding: "18px 20px", borderRadius: 16, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                    Punch Out
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* CAMERA */}
       <video
         ref={videoRef}
@@ -669,75 +465,28 @@ const stopVerification = () => {
           <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, letterSpacing: "-0.01em" }}>FaceID Attendance</span>
         </div>
 
-        {/* <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: loading ? "rgba(100,116,139,0.3)" : "rgba(22, 163, 74, 0.7)", border: `1px solid ${loading ? "rgba(100,116,139,0.4)" : "rgba(34,197,94,0.4)"}`, color: loading ? "#94a3b8" : "#4ade80", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
-            {loading ? "Loading" : "Models Ready"}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: isVerifying ? "rgba(37,99,235,0.25)" : "rgba(100,116,139,0.2)", border: `1px solid ${isVerifying ? "rgba(96,165,250,0.4)" : "rgba(100,116,139,0.3)"}`, color: isVerifying ? "#93c5fd" : "#64748b", padding: "5px 10px", borderRadius: 999, fontSize: 12, fontWeight: 500, backdropFilter: "blur(10px)" }}>
-            {isVerifying ? "Verifying" : "Standby"}
-          </div>
-        </div> */}
-
-       <div
-  style={{
-    color: "rgba(255,255,255,0.45)",
-    fontSize: 13,
-    fontWeight: 500,
-    letterSpacing: "0.02em",
-  }}
->
-  {currentTime.toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })}
-  {" • "}
-  {currentTime.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  })}
-</div>
+        <div
+          style={{
+            color: "rgba(255,255,255,0.45)",
+            fontSize: 13,
+            fontWeight: 500,
+            letterSpacing: "0.02em",
+          }}
+        >
+          {currentTime.toLocaleDateString("en-IN", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
+          {" • "}
+          {currentTime.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </div>
       </div>
-
-      {/* LEFT PANEL */}
-      {/* <div style={{ position: "absolute", top: "50%", left: 40, transform: "translateY(-50%)", width: 220, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}> */}
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "18px 20px", backdropFilter: "blur(16px)" }}>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Today's Date</div>
-          <div style={{ color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>{currentTime.getDate()}</div>
-          <div style={{ color: "#60a5fa", fontSize: 13, fontWeight: 600, marginTop: 8 }}>
-            {currentTime.toLocaleDateString([], { month: "long", year: "numeric" })}
-          </div>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 4 }}>
-            {currentTime.toLocaleDateString([], { weekday: "long" })}
-          </div>
-          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
-            Attendance tracking active today
-          </div>
-        </div> */}
-
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em" }}>Local Time</div>
-          <div style={{ color: "#fff", fontSize: 29, fontWeight: 700, lineHeight: 1 }}>
-            {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-          </div>
-          <div style={{ width: 40, height: 2, borderRadius: 99, background: "linear-gradient(90deg, #3b82f6, #60a5fa)", margin: "4px 0" }} />
-          <div style={{ color: "#93c5fd", fontSize: 15, fontWeight: 600 }}>{greeting}</div>
-          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Reception • Device #01</div>
-        </div> */}
-
-        {/* <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", gap: 10 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          <div>
-            <div style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>Reception</div>
-            <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>Device #01</div>
-          </div>
-        </div> */}
-      {/* </div> */}
 
       {/* FACE GUIDE */}
       <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 5 }}>
@@ -759,21 +508,6 @@ const stopVerification = () => {
           Position face within guide
         </div>
       </div>
-
-      {/* RIGHT PANEL */}
-      {/* <div style={{ position: "absolute", top: "50%", right: 40, transform: "translateY(-50%)", width: 230, display: "flex", flexDirection: "column", gap: 16, zIndex: 10 }}>
-        <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "16px 20px", backdropFilter: "blur(16px)" }}>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
-            System Status
-          </div>
-          {systemStatus.map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < systemStatus.length - 1 ? 12 : 0 }}>
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: item.online ? "#4ade80" : "#ef4444", boxShadow: item.online ? "0 0 10px rgba(74,222,128,.7)" : "0 0 10px rgba(239,68,68,.7)", flexShrink: 0 }} />
-              <div style={{ color: "#fff", fontSize: 12, fontWeight: 500 }}>{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </div> */}
 
       {/* RESULT BAR */}
       <div
