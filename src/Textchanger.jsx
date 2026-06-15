@@ -92,16 +92,15 @@ const blockedFacesRef = useRef({});
 
      blockedFacesRef.current[lastMatchedRef.current] = Date.now();
 
-        setTimeout(() => {
-      // setEmployee(null);
-      // setAttendanceStatus(null);
-      // setAttendanceRecord(null);
-      // setAttendanceResult(null);
+     setAttendanceResult({
+    success: true,
+    message: resultData.message || "Attendance Marked Successfully ✅",
+  });
 
-      // lastMatchedRef.current = null;
-      // startVerification();   // ADD THIS
-        resetSession();
-    }, 1500);
+  setTimeout(() => {
+    closeEmployeeModal();
+    resetSession();
+  }, 1500);
   }
     };
 
