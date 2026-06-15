@@ -292,6 +292,7 @@ const result = await faceapi
   };
 const resetSession = () => {
   setEmployee(null);
+  alert("resetting")
   setAttendanceStatus(null);
   setAttendanceRecord(null);
   setAttendanceResult(null);
